@@ -1,0 +1,21 @@
+// STM Icon Font CSS
+// --------------------------
+// STM CSS for Ionic's STM <stm-icon> element
+// stmicons-icons.scss has the icons and their unicode characters
+@charset "UTF-8";
+
+$stmicons-font-path: $font-path !default;
+
+@font-face {
+  font-family: "stm";
+  src:url("#{$stmicons-font-path}/stm.eot");
+  src:url("#{$stmicons-font-path}/stm.eot?#iefix") format("embedded-opentype"),
+    url("#{$stmicons-font-path}/stm.woff") format("woff"),
+    url("#{$stmicons-font-path}/stm.ttf") format("truetype"),
+    url("#{$stmicons-font-path}/stm.svg#stm") format("svg");
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@import "stmicons-icons";

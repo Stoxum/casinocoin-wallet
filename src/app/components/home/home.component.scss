@@ -21,7 +21,7 @@ $base-height: 60px;
   font-weight: 300;
   font-size: 0.90em;
   height: $statusBarHeight;
-  background: $casinocoinBlack;
+  background: $stoxumBlack;
 }
 
 ::ng-deep p-toolbar .ui-toolbar-group-left {
@@ -52,7 +52,7 @@ $base-height: 60px;
 
 .btn.focus, .btn:focus {
   outline: 0;
-  box-shadow: 0 0 0 2px $casinocoinRedLighter;
+  box-shadow: 0 0 0 2px $stoxumRedLighter;
 }
 
 .btn {
@@ -74,11 +74,11 @@ $base-height: 60px;
 }
 
 .connected-color {
-  color: $casinocoinGreen;
+  color: $stoxumGreen;
 }
 
 .disconnected-color {
-  color: $casinocoinRed;
+  color: $stoxumRed;
 }
 
 .amount-label {
@@ -100,13 +100,13 @@ $base-height: 60px;
 .app-nav {
   width: 240px;
   height: 100%;
-  background: $casinocoinRed;
+  background: $stoxumRed;
   background-image: url('../../../assets/brand/navbar-bg.jpg');
   background-repeat: no-repeat;
   background-position: bottom;
 }
 
-.csc-logo {
+.stm-logo {
   width: 220px;
   padding: 25px;
   text-align: center;
@@ -132,7 +132,7 @@ $base-height: 60px;
 
 /*
 .menu-nav mat-list-item:hover {
-  background-color: $casinocoinRedDarker;
+  background-color: $stoxumRedDarker;
   background-repeat: no-repeat;
   background-position: right;
   position: sticky;
@@ -183,18 +183,18 @@ $base-height: 60px;
 }
 
 ::ng-deep .footer-error {
-  color: $casinocoinRed;
+  color: $stoxumRed;
   font-weight: bolder;
 }
 
 ::ng-deep .mat-list-address-item {
-  color: $casinocoinRed !important;
+  color: $stoxumRed !important;
   font-size: smaller;
 }
 
 ::ng-deep .mat-list-address {
   flex-grow: 1;
-  border: 1px solid $casinocoinRed;
+  border: 1px solid $stoxumRed;
   overflow: auto;
   height: 90px;
 }

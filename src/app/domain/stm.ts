@@ -1,27 +1,27 @@
 import { Injectable } from '@angular/core';
 import { Logger } from "angular2-logger/core";
-import * as binary from 'casinocoin-libjs-binary-codec';
-import * as keypairs from 'casinocoin-libjs-keypairs';
-import * as computeBinaryTransactionHash  from 'casinocoin-libjs-hashes';
-import { Payment, PaymentFlags, Instructions, Prepare, Amount } from './csc-types';
-import { CSCUtil } from './csc-util';
+import * as binary from 'stoxum-binary-codec';
+import * as keypairs from 'stoxum-keypairs';
+import * as computeBinaryTransactionHash  from 'stoxum-hashes';
+import { Payment, PaymentFlags, Instructions, Prepare, Amount } from './stm-types';
+import { STMUtil } from './stm-util';
 import * as _ from "lodash";
 
 @Injectable()
-export class CSC {
+export class STM {
 
     constructor(private logger: Logger) {}
 
     isCSCToCSCPayment(payment: Payment): boolean {
         let sourceCurrency = _.get(payment, 'source.maxAmount.currency', _.get(payment, 'source.amount.currency'))
         let destinationCurrency = _.get(payment, 'destination.amount.currency',  _.get(payment, 'destination.minAmount.currency'))
-        return sourceCurrency === 'CSC' && destinationCurrency === 'CSC';
+        return sourceCurrency === 'STM' && destinationCurrency === 'STM';
     }
-    
+
     isIOUWithoutCounterparty(amount: Amount): boolean {
-        return amount && amount.currency !== 'CSC' && amount.counterparty === undefined;
+        return amount && amount.currency !== 'STM' && amount.counterparty === undefined;
     }
-    
+
     applyAnyCounterpartyEncoding(payment: Payment): void {
         // Convert blank counterparty to sender or receiver's address
         _.forEach([payment.source, payment.destination], adjustment => {
@@ -36,27 +36,27 @@ export class CSC {
     createMaximalAmount(amount: Amount): Amount {
         const maxCSCValue = '40000000000'
         const maxIOUValue = '9999999999999999e80'
-        const maxValue = amount.currency === 'CSC' ? maxCSCValue : maxIOUValue
+        const maxValue = amount.currency === 'STM' ? maxCSCValue : maxIOUValue
         return _.assign({}, amount, { value: maxValue })
     }
 
     createPaymentTransaction(address: string, paymentArgument: Payment): Object {
         let payment = _.cloneDeep(paymentArgument)
         this.applyAnyCounterpartyEncoding(payment)
-    
+
         if (address !== payment.source.address) {
-            this.logger.error("### CSC: address must match payment.source.address");
+            this.logger.error("### STM: address must match payment.source.address");
             return;
         }
-    
+
         if ((payment.source.maxAmount && payment.destination.minAmount) ||
             (payment.source.amount && payment.destination.amount)) {
-                this.logger.error("### CSC: payment must specify either (source.maxAmount " +
+                this.logger.error("### STM: payment must specify either (source.maxAmount " +
                 "and destination.amount) or (source.amount and destination.minAmount)");
                 return;
         }
-    
-        // when using destination.minAmount, casinocoind still requires that we set
+
+        // when using destination.minAmount, stoxumd still requires that we set
         // a destination amount in addition to DeliverMin. the destination amount
         // is interpreted as the maximum amount to send. we want to be sure to
         // send the whole source amount, so we set the destination amount to the
@@ -65,16 +65,16 @@ export class CSC {
         let amount = payment.destination.minAmount && !this.isCSCToCSCPayment(payment) ?
             this.createMaximalAmount(payment.destination.minAmount) :
             (payment.destination.amount || payment.destination.minAmount)
-    
+
         let paymentFlags: PaymentFlags;
         let txJSON: Object = {
             TransactionType: 'Payment',
             Account: payment.source.address,
             Destination: payment.destination.address,
-            Amount: CSCUtil.toCasinocoindAmount(amount),
+            Amount: STMUtil.toStoxumdAmount(amount),
             Flags: 0
         }
-    
+
         if (payment.invoiceID !== undefined) {
             txJSON['InvoiceID'] = payment.invoiceID;
         }
@@ -85,10 +85,10 @@ export class CSC {
             txJSON['DestinationTag'] = payment.destination.tag;
         }
         if (payment.memos !== undefined) {
-            txJSON['Memos'] = _.map(payment.memos, CSCUtil.encodeMemo);
+            txJSON['Memos'] = _.map(payment.memos, STMUtil.encodeMemo);
         }
-        if (payment.noDirectCasinocoin === true) {
-            txJSON['Flags'] |= paymentFlags.NoCasinocoinDirect;
+        if (payment.noDirectStoxum === true) {
+            txJSON['Flags'] |= paymentFlags.NoStoxumDirect;
         }
         if (payment.limitQuality === true) {
             txJSON['Flags'] |= paymentFlags.LimitQuality;
@@ -102,25 +102,25 @@ export class CSC {
         // Transaction Fee
         txJSON['Fee'] = 1000000;
 
-        // Future use of non CSC payments
+        // Future use of non STM payments
         // if (!this.isCSCToCSCPayment(payment)) {
-        //     // Don't set SendMax for CSC->CSC payment
+        //     // Don't set SendMax for STM->STM payment
         //     if (payment.allowPartialPayment === true ||
         //         payment.destination.minAmount !== undefined) {
         //         txJSON['Flags'] |= paymentFlags.PartialPayment;
         //     }
-    
-        //     txJSON['SendMax'] = CSCUtil.toCasinocoindAmount(payment.source.maxAmount || payment.source.amount);
-    
+
+        //     txJSON['SendMax'] = STMUtil.toStoxumdAmount(payment.source.maxAmount || payment.source.amount);
+
         //     if (payment.destination.minAmount !== undefined) {
-        //         txJSON['DeliverMin'] = CSCUtil.toCasinocoindAmount(payment.destination.minAmount);
+        //         txJSON['DeliverMin'] = STMUtil.toStoxumdAmount(payment.destination.minAmount);
         //     }
-    
+
         //     if (payment.paths !== undefined) {
         //         txJSON['Paths'] = JSON.parse(payment.paths);
         //     }
         // } else if (payment.allowPartialPayment === true) {
-        //     this.logger.error("### CSC: CSC to CSC payments cannot be partial payments");
+        //     this.logger.error("### STM: STM to STM payments cannot be partial payments");
         // }
         return txJSON;
     }

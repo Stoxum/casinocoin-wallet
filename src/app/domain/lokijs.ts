@@ -1,4 +1,4 @@
-import { Memo } from './csc-types';
+import { Memo } from './stm-types';
 import { AppConstants } from '../domain/app-constants';
 
 export interface LokiMeta {

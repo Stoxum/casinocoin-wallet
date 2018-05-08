@@ -40,8 +40,8 @@ export class NotificationService {
         this.logger.debug("### NotificationService: " + JSON.stringify(msg));
         this.electronService.ipcRenderer.send('push-notification', msg);
         /*let notificationOptions: NotificationOptions = {
-            tag: "CasinoCoin",
-            icon: path.join(__dirname, 'assets/brand/casinocoin-icon-256x256.png'),
+            tag: "Stoxum",
+            icon: path.join(__dirname, 'assets/brand/stoxum-icon-256x256.png'),
             body: msg.body
         }
         let notification = new Notification(msg.title, notificationOptions);*/

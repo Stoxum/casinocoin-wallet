@@ -7,7 +7,7 @@ import { LocalStorage, SessionStorage, LocalStorageService, SessionStorageServic
 import { ElectronService } from '../../providers/electron.service';
 import { LogService } from '../../providers/log.service';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
-import { CasinocoinService } from '../../providers/casinocoin.service';
+import { StoxumService } from '../../providers/stoxum.service';
 import { ServerDefinition } from '../../domain/websocket-types';
 import { WalletService } from '../../providers/wallet.service';
 import { MarketService } from '../../providers/market.service';
@@ -15,13 +15,13 @@ import { MenuItem as PrimeMenuItem, Message, ContextMenu } from 'primeng/primeng
 import { SelectItem, Dropdown } from 'primeng/primeng';
 import { MatListModule, MatSidenavModule } from '@angular/material';
 import { AppConstants } from '../../domain/app-constants';
-import { CSCUtil } from '../../domain/csc-util';
-import { CSCCrypto } from '../../domain/csc-crypto';
+import { STMUtil } from '../../domain/stm-util';
+import { STMCrypto } from '../../domain/stm-crypto';
 import { LedgerStreamMessages, ServerStateMessage } from '../../domain/websocket-types';
 import { setTimeout } from 'timers';
 import { Subject } from 'rxjs/Subject';
 import { LokiKey } from '../../domain/lokijs';
-import { WalletSettings } from 'app/domain/csc-types';
+import { WalletSettings } from 'app/domain/stm-types';
 import * as LokiTypes from '../../domain/lokijs';
 import Big from 'big.js';
 
@@ -108,7 +108,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   serverState: ServerStateMessage;
   currentServer: ServerDefinition;
-  casinocoinConnectionSubject: Observable<any>;
+  stoxumConnectionSubject: Observable<any>;
   uiChangeSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
 
   balance:string;;
@@ -129,7 +129,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
                private router: Router,
                private electron: ElectronService,
                private walletService: WalletService,
-               private casinocoinService: CasinocoinService ,
+               private stoxumService: StoxumService ,
                private localStorageService: LocalStorageService,
                private sessionStorageService: SessionStorageService,
                private marketService: MarketService,
@@ -180,7 +180,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     let walletIndex = availableWallets.findIndex( item => item['walletUUID'] == this.currentWallet);
     this.currentWalletObject = availableWallets[walletIndex];
     // get server state
-    let serverStateSubject = this.casinocoinService.serverStateSubject;
+    let serverStateSubject = this.stoxumService.serverStateSubject;
     serverStateSubject.subscribe( state => {
       this.serverState = state;
       this.logger.debug("### HOME Server State: " + JSON.stringify(this.serverState));
@@ -326,8 +326,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.logger.debug("### HOME transactions navResult: " + navResult);
       if(navResult){
         this.navigationSucceeded = true;
-        // connect to casinocoin network
-        this.doConnectToCasinocoinNetwork();
+        // connect to stoxum network
+        this.doConnectToStoxumNetwork();
       } else {
         this.navigationSucceeded = false;
       }
@@ -370,24 +370,24 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(){
     this.logger.debug("### HOME ngOnDestroy() ###");
-    if(this.isConnected && this.casinocoinService != undefined){
-      this.casinocoinService.disconnect();
+    if(this.isConnected && this.stoxumService != undefined){
+      this.stoxumService.disconnect();
     }
   }
 
-  doConnectToCasinocoinNetwork(){
-    this.logger.debug("### HOME doConnectToCasinocoinNetwork() ###");
-    // Connect to the casinocoin network
-    this.casinocoinService.connect().subscribe(connected => {
-      // this.casinocoinService.casinocoinConnectedSubject.subscribe( connected => {
+  doConnectToStoxumNetwork(){
+    this.logger.debug("### HOME doConnectToStoxumNetwork() ###");
+    // Connect to the stoxum network
+    this.stoxumService.connect().subscribe(connected => {
+      // this.stoxumService.stoxumConnectedSubject.subscribe( connected => {
         if(connected == AppConstants.KEY_CONNECTED){
           this.logger.debug("### HOME Connected ###");
           // subscribe to transaction updates
-          this.casinocoinService.transactionSubject.subscribe( tx => {
+          this.stoxumService.transactionSubject.subscribe( tx => {
             this.doTransacionUpdate();
           });
           // subscribe to account updates
-          this.casinocoinService.accountSubject.subscribe( account => {
+          this.stoxumService.accountSubject.subscribe( account => {
             this.doBalanceUpdate();
           });
           this.uiChangeSubject.next(AppConstants.KEY_CONNECTED);
@@ -406,7 +406,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.connectionColorClass = "connected-color";
       this.connected_tooltip = "Connected";
       this.setConnectedMenuItem(true);
-      this.currentServer = this.casinocoinService.getCurrentServer();
+      this.currentServer = this.stoxumService.getCurrentServer();
   }
 
   setWalletUIDisconnected(){
@@ -442,18 +442,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   onConnect(){
     this.logger.debug("### HOME Connect ###");
     this.manualDisconnect = false;
-    this.casinocoinService.connect();
-    // this.connectToCasinocoinNetwork();
+    this.stoxumService.connect();
+    // this.connectToStoxumNetwork();
   }
 
   onDisconnect(){
     this.logger.debug("### HOME Disconnect ###");
     this.manualDisconnect = true;
-    this.casinocoinService.disconnect();
+    this.stoxumService.disconnect();
   }
 
   onServerInfo() {
-    this.currentServer = this.casinocoinService.getCurrentServer();
+    this.currentServer = this.stoxumService.getCurrentServer();
     this.showServerInfoDialog = true;
   }
 
@@ -532,7 +532,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.walletService.importPrivateKey(importKey.secret, this.walletPassword);
       });
       // refresh accounts
-      this.casinocoinService.checkAllAccounts();
+      this.stoxumService.checkAllAccounts();
       this.showPrivateKeyImportDialog = false;
       this.importKeys = [];
       this.walletPassword = "";
@@ -612,7 +612,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         { title: 'Select Wallet Backup File',
           defaultPath: this.electron.remote.app.getPath("documents"),
           filters: [
-            { name: 'CSC Wallet Backups', extensions: ['backup'] }
+            { name: 'STM Wallet Backups', extensions: ['backup'] }
           ],
           properties: ['openFile']
         }, (result) => {
@@ -637,7 +637,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         { title: 'Select Wallet',
           defaultPath: this.electron.remote.app.getPath("documents"),
           filters: [
-            { name: 'CSC Wallet', extensions: ['db'] }
+            { name: 'STM Wallet', extensions: ['db'] }
           ],
           properties: ['openFile']
         }, (result) => {
@@ -664,10 +664,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   doBalanceUpdate() {
     this.walletBalance = this.walletService.getWalletBalance() ? this.walletService.getWalletBalance() : "0";
-    this.balance = CSCUtil.dropsToCsc(this.walletBalance)
+    this.balance = STMUtil.dropsToCsc(this.walletBalance)
     let balanceCSC = new Big(this.balance);
     if(this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined){
-      this.logger.debug("### CSC Price: " + this.marketService.cscPrice + " BTC: " + this.marketService.btcPrice + " Fiat: " + this.marketService.coinMarketInfo.price_fiat);
+      this.logger.debug("### STM Price: " + this.marketService.stmPrice + " BTC: " + this.marketService.btcPrice + " Fiat: " + this.marketService.coinMarketInfo.price_fiat);
       let fiatValue = balanceCSC.times(new Big(this.marketService.coinMarketInfo.price_fiat)).toString();
       this.fiat_balance = this.currencyPipe.transform(fiatValue, this.marketService.coinMarketInfo.selected_fiat, true, "1.2-2");
     }
@@ -686,7 +686,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     let walletHash = this.walletService.generateWalletPasswordHash(this.importFileObject['name'], this.walletPassword);
     let newWallet =
         { "walletUUID": this.importFileObject['name'], 
-          "importedDate": CSCUtil.iso8601ToCasinocoinTime(new Date().toISOString()),
+          "importedDate": STMUtil.iso8601ToStoxumTime(new Date().toISOString()),
           "location": this.importFileObject['dir'],
           "hash": walletHash
         };
@@ -700,7 +700,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   createWallet(){
     this.walletService.closeWallet();
-    this.casinocoinService.disconnect();
+    this.stoxumService.disconnect();
     this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
     this.walletService.openWalletSubject.next(AppConstants.KEY_INIT);
     this.sessionStorageService.set(AppConstants.KEY_CREATE_WALLET_RUNNING, true);
@@ -709,7 +709,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   closeWallet(){
     this.walletService.closeWallet();
-    this.casinocoinService.disconnect();
+    this.stoxumService.disconnect();
     this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
     this.router.navigate(['login']);
     // this.electron.remote.getCurrentWindow().reload();
@@ -819,7 +819,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.logger.debug("### HOME Backup DB ###");
     let dbDump = this.walletService.getWalletDump();
     // create a filename
-    let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss") + "-csc-wallet.backup";
+    let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss") + "-stm-wallet.backup";
     let backupFilePath = path.join(this.backupPath, filename);
     // Write the JSON array to the file 
     fs.writeFileSync(backupFilePath, dbDump);

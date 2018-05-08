@@ -10,16 +10,16 @@ import { SelectItem } from 'primeng/components/common/selectitem';
 @Injectable()
 export class MarketService {
 
-    private coinmarketCapURLCSC = 'https://api.coinmarketcap.com/v1/ticker/casinocoin/?convert=';
+    private coinmarketCapURLCSC = 'https://api.coinmarketcap.com/v1/ticker/stoxum/?convert=';
     private coinmarketCapURLBTC = 'https://api.coinmarketcap.com/v1/ticker/bitcoin/?convert=';
-    private exchangesURL = 'https://api.casinocoin.org/1.0.0/info/exchanges/all';
+    private exchangesURL = 'https://api.stoxum.org/1.0.0/info/exchanges/all';
     public coinMarketInfo: CoinMarketCapType;
     public exchanges: Array<ExchangesType>;
     private checkInterval: any;
     public exchangeUpdates = new Subject<Array<ExchangesType>>();
     public coininfoUpdates = new Subject<CoinMarketCapType>();
     public btcPrice: number = 1;
-    public cscPrice: number = 0.00000001;
+    public stmPrice: number = 0.00000001;
     public fiatCurrency = 'USD';
 
     constructor(private logger: LogService,
@@ -109,10 +109,10 @@ export class MarketService {
         this.http.get<Array<ExchangesType>>(this.exchangesURL, options).subscribe(result => {
             this.exchanges = result;
             // get max last price
-            this.cscPrice = 0.00000001;
+            this.stmPrice = 0.00000001;
             this.exchanges.forEach(exchange => {
-                if (exchange.last > this.cscPrice) {
-                    this.cscPrice = exchange.last;
+                if (exchange.last > this.stmPrice) {
+                    this.stmPrice = exchange.last;
                 }
             });
             this.exchangeUpdates.next(this.exchanges);

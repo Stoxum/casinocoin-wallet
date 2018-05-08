@@ -10,19 +10,19 @@ import { LedgerStreamMessages, ValidationStreamMessages,
          TransactionStreamMessages, ServerStateMessage, 
          ServerDefinition } from '../domain/websocket-types';
 import { LogService } from './log.service';
-import * as cscKeyAPI from 'casinocoin-libjs-keypairs';
-import * as cscBinaryAPI from 'casinocoin-libjs-binary-codec';
+import * as stmKeyAPI from 'stoxum-keypairs';
+import * as stmBinaryAPI from 'stoxum-binary-codec';
 import { LokiKey, LokiAccount, LokiTransaction, LokiTxStatus } from '../domain/lokijs';
 import { AppConstants } from '../domain/app-constants';
-import { CasinocoinTxObject, PrepareTxPayment } from '../domain/csc-types';
-import { CSCUtil } from '../domain/csc-util';
+import { StoxumTxObject, PrepareTxPayment } from '../domain/stm-types';
+import { STMUtil } from '../domain/stm-util';
 import { NotificationService } from './notification.service';
 import int from 'int';
 
 const crypto = require('crypto');
 
 @Injectable()
-export class CasinocoinService implements OnDestroy {
+export class StoxumService implements OnDestroy {
 
     private defaultMinimalFee = 100000;
 
@@ -41,7 +41,7 @@ export class CasinocoinService implements OnDestroy {
     public transactions: Array<LokiTransaction> = [];
     public transactionSubject = new Subject<LokiTransaction>();
     public lastTransactionHash: string = "";
-    public casinocoinConnectedSubject = new BehaviorSubject<boolean>(false);
+    public stoxumConnectedSubject = new BehaviorSubject<boolean>(false);
 
     constructor(private logger: LogService, 
                 private wsService: WebsocketService,
@@ -49,22 +49,22 @@ export class CasinocoinService implements OnDestroy {
                 private notificationService: NotificationService,
                 private decimalPipe: DecimalPipe,
                 private localStorageService: LocalStorageService ) {
-        logger.debug("### INIT  CasinocoinService ###");
+        logger.debug("### INIT  StoxumService ###");
         // Initialize server state
         this.initServerState();
     }
 
     ngOnDestroy() {
-        this.logger.debug("### CasinocoinService onDestroy ###");
+        this.logger.debug("### StoxumService onDestroy ###");
         if(this.socketSubscription != undefined){
             this.socketSubscription.unsubscribe();
         }
     }
 
     connect(): Observable<any> {
-        this.logger.debug("### CasinocoinService Connect() - isConnected: " + this.isConnected);
+        this.logger.debug("### StoxumService Connect() - isConnected: " + this.isConnected);
         let connectToProduction: boolean = this.localStorageService.get(AppConstants.KEY_PRODUCTION_NETWORK);
-        this.logger.debug("### CasinocoinService Connect() - Connect To Production?: " + connectToProduction);
+        this.logger.debug("### StoxumService Connect() - Connect To Production?: " + connectToProduction);
         let connectSubject;
         if(!this.isConnected){
             connectSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
@@ -76,15 +76,15 @@ export class CasinocoinService implements OnDestroy {
             // check if the server is found, otherwise wait till it is
             const serverFoundSubscription = this.wsService.isServerFindComplete$.subscribe(serverFound => {
                 if(serverFound && !this.makingConnectionStarted){
-                    this.logger.debug("### CasinocoinService serverFound - Wait for websocket connected");
+                    this.logger.debug("### StoxumService serverFound - Wait for websocket connected");
                     // check if websocket is open, otherwise wait till it is
                     this.connectedSubscription = this.wsService.isConnected$.subscribe(connected => {
-                        this.logger.debug("### CasinocoinService connected: " + connected + " isConnected: " + this.isConnected + " disconnectStarted: " + this.disconnectStarted);
+                        this.logger.debug("### StoxumService connected: " + connected + " isConnected: " + this.isConnected + " disconnectStarted: " + this.disconnectStarted);
                         if(!connected && !this.isConnected){
                             if(this.disconnectStarted){
                                 // disconnect complete
                                 this.disconnectStarted = false;
-                                this.casinocoinConnectedSubject.next(false);
+                                this.stoxumConnectedSubject.next(false);
                                 // check if we need to reconnect?
                                 if(this.reconnectOnDisconnect){
                                     this.connect();
@@ -97,7 +97,7 @@ export class CasinocoinService implements OnDestroy {
                         } else if(connected && !this.isConnected){
                             this.isConnected = true;
                             this.reconnectOnDisconnect = false;
-                            this.casinocoinConnectedSubject.next(true);
+                            this.stoxumConnectedSubject.next(true);
                             // inform listeners we are connected
                             connectSubject.next(AppConstants.KEY_CONNECTED);
                             // get the current server state
@@ -114,7 +114,7 @@ export class CasinocoinService implements OnDestroy {
                                     this.walletService.getAllKeys().forEach(element => {
                                         subscribeAccounts.push(element.accountID);
                                     });
-                                    this.logger.debug("### CasinocoinService Accounts: " + JSON.stringify(subscribeAccounts));
+                                    this.logger.debug("### StoxumService Accounts: " + JSON.stringify(subscribeAccounts));
                                     this.subscribeToAccountsStream(subscribeAccounts);
                                     // update all accounts from the network
                                     this.checkAllAccounts();
@@ -123,18 +123,18 @@ export class CasinocoinService implements OnDestroy {
                                 }
                             });
                         } else if(!connected && this.isConnected) {
-                            this.logger.debug("### CasinocoinService Connect Closed !! - isConnected: " + connected);
+                            this.logger.debug("### StoxumService Connect Closed !! - isConnected: " + connected);
                             // inform listeners we are disconnected
                             connectSubject.next(AppConstants.KEY_DISCONNECTED);
                             this.isConnected = false;
-                            this.casinocoinConnectedSubject.next(false);
+                            this.stoxumConnectedSubject.next(false);
                             // reconnect if requested
                             if(this.reconnectOnDisconnect){
                                 this.connect();
                             }
                         } else if(!connected){
                             connectSubject.next(AppConstants.KEY_DISCONNECTED);
-                            this.casinocoinConnectedSubject.next(false);
+                            this.stoxumConnectedSubject.next(false);
                         }
                     });
                 }
@@ -147,7 +147,7 @@ export class CasinocoinService implements OnDestroy {
     }
 
     disconnect(){
-        this.logger.debug("### CasinocoinService - disconnect");
+        this.logger.debug("### StoxumService - disconnect");
         // let disconnectSubject = new Subject<string>();
         this.disconnectStarted = true;
         // disconnect socket
@@ -167,7 +167,7 @@ export class CasinocoinService implements OnDestroy {
     }
 
     reconnect(){
-        this.logger.debug("### CasinocoinService - reconnect");
+        this.logger.debug("### StoxumService - reconnect");
         this.reconnectOnDisconnect = true;
         this.disconnect();
     }
@@ -204,12 +204,12 @@ export class CasinocoinService implements OnDestroy {
 
     subscribeToMessages() {
         // subscribe to incomming messages
-        this.logger.debug("### CasinocoinService - subscribeToMessages");
+        this.logger.debug("### StoxumService - subscribeToMessages");
         this.socketSubscription = this.wsService.websocketConnection.messages.subscribe((message: any) => {
             let incommingMessage = JSON.parse(message);
-            // this.logger.debug('### CasinocoinService received message from server: ', JSON.stringify(incommingMessage));
+            // this.logger.debug('### StoxumService received message from server: ', JSON.stringify(incommingMessage));
             if(incommingMessage['type'] == 'ledgerClosed'){
-                this.logger.debug("### CasinocoinService - ledgerClosed: " + JSON.stringify(incommingMessage));
+                this.logger.debug("### StoxumService - ledgerClosed: " + JSON.stringify(incommingMessage));
                 this.addLedger(incommingMessage);
                 // get the new server state
                 this.getServerState();
@@ -219,7 +219,7 @@ export class CasinocoinService implements OnDestroy {
                         this.walletService.getUnvalidatedTransactions().forEach( tx => {
                             if(! (tx.txID == this.lastTransactionHash)){
                                 if(incommingMessage.ledger_index <= tx.lastLedgerSequence){
-                                    this.logger.debug("### CasinocoinService - check TX: " + JSON.stringify(tx));
+                                    this.logger.debug("### StoxumService - check TX: " + JSON.stringify(tx));
                                     // get the tx to check its status
                                     this.getTransaction(tx.txID);    
                                 }
@@ -230,12 +230,12 @@ export class CasinocoinService implements OnDestroy {
             } else if(incommingMessage['type'] == 'serverStatus'){
                 this.logger.debug("server state: " + incommingMessage['server_status']);
                 if(incommingMessage['server_status'] != 'full'){
-                    this.logger.debug("### CasinocoinService - server_status: " + incommingMessage['server_status'] + " -> Reconnect !!!");
+                    this.logger.debug("### StoxumService - server_status: " + incommingMessage['server_status'] + " -> Reconnect !!!");
                     this.reconnect();
                 }
             } else if(incommingMessage['type'] == 'transaction'){
                 let msg_tx = incommingMessage['transaction'];
-                this.logger.debug("### CasinocoinService - Incomming TX: " + JSON.stringify(msg_tx));
+                this.logger.debug("### StoxumService - Incomming TX: " + JSON.stringify(msg_tx));
                 if(msg_tx.TransactionType === "Payment"){
                     // check if we already have the TX
                     let dbTX: LokiTransaction = this.walletService.getTransaction(msg_tx.hash);
@@ -254,30 +254,30 @@ export class CasinocoinService implements OnDestroy {
                     if(dbTX.direction == AppConstants.KEY_WALLET_TX_IN){
                         this.getAccountInfo(dbTX.destination);
                         this.notificationService.addMessage(
-                            {title: 'Incomming CSC Transaction', 
-                            body: 'You received '+ this.decimalPipe.transform(CSCUtil.dropsToCsc(dbTX.amount), "1.2-8") +
+                            {title: 'Incomming STM Transaction', 
+                            body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToCsc(dbTX.amount), "1.2-8") +
                                 ' coins from ' + dbTX.accountID});
                     } else if(dbTX.direction == AppConstants.KEY_WALLET_TX_OUT){
                         this.getAccountInfo(dbTX.accountID);
                         this.notificationService.addMessage(
-                            {title: 'Outgoing CSC Transaction', 
-                            body: 'You sent '+ this.decimalPipe.transform(CSCUtil.dropsToCsc(dbTX.amount), "1.2-8") +
+                            {title: 'Outgoing STM Transaction', 
+                            body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(dbTX.amount), "1.2-8") +
                                 ' coins to ' + dbTX.destination});
                     } else {
                         this.getAccountInfo(dbTX.destination);
                         this.getAccountInfo(dbTX.accountID);
                         this.notificationService.addMessage(
                             {title: 'Wallet Transaction', 
-                            body: 'You sent '+ this.decimalPipe.transform(CSCUtil.dropsToCsc(dbTX.amount), "1.2-8") +
+                            body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(dbTX.amount), "1.2-8") +
                                 ' coins to your own address ' + dbTX.destination});
                     }
                 }
             }  else if((incommingMessage['type'] == 'response') && incommingMessage.status === 'success'){
-                // this.logger.debug('### CasinocoinService received message from server: ', JSON.stringify(incommingMessage));
+                // this.logger.debug('### StoxumService received message from server: ', JSON.stringify(incommingMessage));
                 // we received a response on a request
                 if(incommingMessage['id'] == 'ping'){
                     // we received a pong
-                    this.logger.debug("### CasinocoinService - Pong");
+                    this.logger.debug("### StoxumService - Pong");
                 } else if(incommingMessage['id'] == 'server_state'){
                     // we received a server_state
                     this.serverStateSubject.next(incommingMessage.result.state);
@@ -302,7 +302,7 @@ export class CasinocoinService implements OnDestroy {
                     this.ledgerSubject.next(ledgerMessage);
                 } else if (incommingMessage['id'] == 'getAccountInfo'){
                     // we received account info
-                    this.logger.debug("### CasinocoinService - getAccountInfo: " + JSON.stringify(incommingMessage.result));
+                    this.logger.debug("### StoxumService - getAccountInfo: " + JSON.stringify(incommingMessage.result));
                     let account_result = incommingMessage.result.account_data;
                     // get the account from the wallet
                     let walletAccount: LokiAccount = this.walletService.getAccount(account_result.Account);
@@ -332,15 +332,15 @@ export class CasinocoinService implements OnDestroy {
                             }
                         }
                     });
-                    this.logger.debug("### CasinocoinService - Account TX - OUT: " + outgoingCount + 
+                    this.logger.debug("### StoxumService - Account TX - OUT: " + outgoingCount + 
                                         " TOTAL: " + dbAccountTransactions.length + 
                                         " Sequence: " + account_result.Sequence +
                                         " Last DB Sequence: " + lastSequence + 
                                         " Get Ledgers From: " + lastTxLedgerIndex);
                     // the account transaction total from the database to check if we are missing transactions
                     let accountTxBalance = this.walletService.getAccountTXBalance(walletAccount.accountID);
-                    this.logger.debug("### CasinocoinService - Account DB TX Balance: " + walletAccount.accountID + " => " + accountTxBalance);
-                    this.logger.debug("### CasinocoinService - Account Online TX Balance: " + walletAccount.accountID + " => " + walletAccount.balance);
+                    this.logger.debug("### StoxumService - Account DB TX Balance: " + walletAccount.accountID + " => " + accountTxBalance);
+                    this.logger.debug("### StoxumService - Account Online TX Balance: " + walletAccount.accountID + " => " + walletAccount.balance);
                     if(walletAccount.balance !== accountTxBalance){
                          // we are missing transactions or have still unvalidated transactions for this account so check all
                          this.getAccountTx(walletAccount.accountID, lastTxLedgerIndex);
@@ -352,7 +352,7 @@ export class CasinocoinService implements OnDestroy {
                         // }
                     }
                 } else if(incommingMessage['id'] == 'ValidatedLedgers'){
-                    this.logger.debug("### CasinocoinService - Validated Ledger: " + JSON.stringify(incommingMessage.result));
+                    this.logger.debug("### StoxumService - Validated Ledger: " + JSON.stringify(incommingMessage.result));
                     if(!this.ledgersLoaded){
                         // get the last 10 ledgers
                         let startIndex = incommingMessage.result.ledger_index - 10;
@@ -363,10 +363,10 @@ export class CasinocoinService implements OnDestroy {
                         this.ledgersLoaded = true;   
                     }
                 } else if(incommingMessage['id'] == 'AccountUpdates'){
-                    this.logger.debug("### CasinocoinService - Account Update: " + JSON.stringify(incommingMessage.result));
+                    this.logger.debug("### StoxumService - Account Update: " + JSON.stringify(incommingMessage.result));
                     this.logger.debug("Account: " + JSON.stringify(incommingMessage.result));
                 } else if(incommingMessage['id'] == 'submitTx'){
-                    this.logger.debug("### CasinocoinService - TX Submitted: " + JSON.stringify(incommingMessage));
+                    this.logger.debug("### StoxumService - TX Submitted: " + JSON.stringify(incommingMessage));
                     if(incommingMessage.result.engine_result == "tesSUCCESS"){
                         let msg_tx = incommingMessage.result.tx_json;
                         this.lastTransactionHash = msg_tx.hash;
@@ -390,7 +390,7 @@ export class CasinocoinService implements OnDestroy {
                             lastLedgerSequence: msg_tx.LastLedgerSequence,
                             sequence: msg_tx.Sequence,
                             signingPubKey: msg_tx.SigningPubKey,
-                            timestamp: CSCUtil.casinocoinTimeNow(),
+                            timestamp: STMUtil.stoxumTimeNow(),
                             transactionType: msg_tx.TransactionType,
                             txID: msg_tx.hash,
                             txnSignature: msg_tx.TxnSignature,
@@ -402,7 +402,7 @@ export class CasinocoinService implements OnDestroy {
                         }
                         // add Memos if defined
                         if(msg_tx.Memos){
-                            dbTX.memos = CSCUtil.decodeMemos(msg_tx.Memos);
+                            dbTX.memos = STMUtil.decodeMemos(msg_tx.Memos);
                         }
                         // add Destination Tag if defined
                         if(msg_tx.DestinationTag){
@@ -410,7 +410,7 @@ export class CasinocoinService implements OnDestroy {
                         }
                         // add Invoice ID if defined
                         if(msg_tx.InvoiceID && msg_tx.InvoiceID.length > 0){
-                            dbTX.invoiceID = CSCUtil.decodeInvoiceID(msg_tx.InvoiceID);
+                            dbTX.invoiceID = STMUtil.decodeInvoiceID(msg_tx.InvoiceID);
                         }
                         // insert into the wallet
                         this.walletService.addTransaction(dbTX);
@@ -425,13 +425,13 @@ export class CasinocoinService implements OnDestroy {
                             });
                     }
                 } else if(incommingMessage['id'] == 'getTransaction'){
-                    this.logger.debug("### CasinocoinService - Transaction: " + JSON.stringify(incommingMessage.result));
+                    this.logger.debug("### StoxumService - Transaction: " + JSON.stringify(incommingMessage.result));
                     // get the tx from the database
                     let tx:LokiTransaction = this.walletService.getTransaction(incommingMessage.result.hash);
                     if(tx == null) {
-                        this.logger.debug("### CasinocoinService DB Transactions does not Exist !");
+                        this.logger.debug("### StoxumService DB Transactions does not Exist !");
                     } else {
-                        this.logger.debug("### CasinocoinService DB TX: " + JSON.stringify(tx));
+                        this.logger.debug("### StoxumService DB TX: " + JSON.stringify(tx));
                     }
                     let notifyUser = ((tx.validated == false) && (incommingMessage.result.validated == true));
                     if(notifyUser){
@@ -447,16 +447,16 @@ export class CasinocoinService implements OnDestroy {
                         this.getAccountInfo(tx.destination);
                         if(notifyUser){
                             this.notificationService.addMessage(
-                                {title: 'Incomming CSC Transaction', 
-                                body: 'You received '+ this.decimalPipe.transform(CSCUtil.dropsToCsc(tx.amount), "1.2-8") +
+                                {title: 'Incomming STM Transaction', 
+                                body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToCsc(tx.amount), "1.2-8") +
                                     ' coins from ' + tx.accountID});
                         }
                     } else if(tx.direction == AppConstants.KEY_WALLET_TX_OUT){
                         this.getAccountInfo(tx.accountID);
                         if(notifyUser){
                             this.notificationService.addMessage(
-                                {title: 'Outgoing CSC Transaction', 
-                                body: 'You sent '+ this.decimalPipe.transform(CSCUtil.dropsToCsc(tx.amount), "1.2-8") +
+                                {title: 'Outgoing STM Transaction', 
+                                body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(tx.amount), "1.2-8") +
                                     ' coins to ' + tx.destination});
                         }
                     } else {
@@ -465,50 +465,50 @@ export class CasinocoinService implements OnDestroy {
                         if(notifyUser){
                             this.notificationService.addMessage(
                                 {title: 'Wallet Transaction', 
-                                body: 'You sent '+ this.decimalPipe.transform(CSCUtil.dropsToCsc(tx.amount), "1.2-8") +
+                                body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(tx.amount), "1.2-8") +
                                     ' coins to your own address ' + tx.destination});
                         }
                     }
-                    this.logger.debug("### CasinocoinService - updated TX: " + JSON.stringify(tx));
+                    this.logger.debug("### StoxumService - updated TX: " + JSON.stringify(tx));
                 } else if(incommingMessage['id'] == 'getAccountTx'){
                     let accountTxArray: Array<any> = incommingMessage.result.transactions;
-                    this.logger.debug("### CasinocoinService - Account TX Count: " + accountTxArray.length);
+                    this.logger.debug("### StoxumService - Account TX Count: " + accountTxArray.length);
                     // Check all transactions against DB
                     accountTxArray.forEach(element => {
                         // Get DB transaction
-                        this.logger.debug("### CasinocoinService - getTransaction: " + element.tx.hash);
+                        this.logger.debug("### StoxumService - getTransaction: " + element.tx.hash);
                         let dbTx: LokiTransaction = this.walletService.getTransaction(element.tx.hash);
                         if(dbTx == null){
-                            this.logger.debug("### CasinocoinService - New TX Add to DB: " + JSON.stringify(element.tx));
+                            this.logger.debug("### StoxumService - New TX Add to DB: " + JSON.stringify(element.tx));
                             // Tx does not exist yet so add it
                             dbTx = this.addTxToWallet(element.tx, element.validated);
                             this.transactionSubject.next(dbTx);
                         } else if(dbTx.validated == false && element.validated == true){
-                            this.logger.debug("### CasinocoinService - unvalidated TX got Validated!" + JSON.stringify(element.tx));
+                            this.logger.debug("### StoxumService - unvalidated TX got Validated!" + JSON.stringify(element.tx));
                             dbTx.validated = element.validated;
                             dbTx.inLedger = element.tx.inLedger;
                             dbTx.engineResult = element.tx.engine_result;
                             dbTx.engineResultMessage = element.tx.engine_result_message;
-                            this.logger.debug("### CasinocoinService - updated DB TX: " + JSON.stringify(dbTx));
+                            this.logger.debug("### StoxumService - updated DB TX: " + JSON.stringify(dbTx));
                             this.walletService.updateTransaction(dbTx);
                             this.transactionSubject.next(dbTx);
                         } else if(dbTx.validated == true && element.validated == false){
-                            this.logger.debug("### CasinocoinService - Validated TX got Unvalidated!!!!: " + JSON.stringify(element.tx));
+                            this.logger.debug("### StoxumService - Validated TX got Unvalidated!!!!: " + JSON.stringify(element.tx));
                         }
                         // check if we had inLedger
                         if(element.tx.inLedger == undefined || element.tx.inLedger.length == 0 || element.tx.inLedger <= 0){
-                            this.logger.debug("### CasinocoinService - Account TX needs inLedger: " + JSON.stringify(element.tx));
+                            this.logger.debug("### StoxumService - Account TX needs inLedger: " + JSON.stringify(element.tx));
                             this.getTransaction(element.tx.hash);
                         }
                     });
                     // if we received a marker then there is more so get next batch
                     if(incommingMessage.result.marker){
-                        this.logger.debug("### CasinocoinService - getAccountTx - Get Next Batch");
+                        this.logger.debug("### StoxumService - getAccountTx - Get Next Batch");
                         this.getAccountTx(incommingMessage.result.account, -1, incommingMessage.result.marker);
                     }
                 }
             } else if(incommingMessage.status === 'error'){
-                this.logger.debug("### CasinocoinService - Error Received: " + JSON.stringify(incommingMessage));
+                this.logger.debug("### StoxumService - Error Received: " + JSON.stringify(incommingMessage));
 
             } else { 
                 this.logger.debug("unmapped message: " + JSON.stringify(incommingMessage));
@@ -579,7 +579,7 @@ export class CasinocoinService implements OnDestroy {
         }
         // check if we have a marker to start from
         if(startMarker){
-            this.logger.debug("### CasinocoinService - getAccountTx - addMarker: " + JSON.stringify(startMarker));
+            this.logger.debug("### StoxumService - getAccountTx - addMarker: " + JSON.stringify(startMarker));
             accountTxRequest['marker'] = startMarker; 
         }
         this.sendCommand(accountTxRequest);
@@ -614,11 +614,11 @@ export class CasinocoinService implements OnDestroy {
             secret: "", 
             encrypted: false
         };
-        newKeyPair.secret = cscKeyAPI.generateSeed();
-        const keypair = cscKeyAPI.deriveKeypair(newKeyPair.secret);
+        newKeyPair.secret = stmKeyAPI.generateSeed();
+        const keypair = stmKeyAPI.deriveKeypair(newKeyPair.secret);
         newKeyPair.privateKey = keypair.privateKey;
         newKeyPair.publicKey = keypair.publicKey;
-        newKeyPair.accountID = cscKeyAPI.deriveAddress(keypair.publicKey);
+        newKeyPair.accountID = stmKeyAPI.deriveAddress(keypair.publicKey);
         return newKeyPair;
     }
 
@@ -651,12 +651,12 @@ export class CasinocoinService implements OnDestroy {
         });
     }
 
-    createPaymentTx(input: PrepareTxPayment): CasinocoinTxObject {
+    createPaymentTx(input: PrepareTxPayment): StoxumTxObject {
         // we allow the transaction to be included in the next 10 ledgers
         let lastLedgerForTx = this.ledgers[0].ledger_index + 10;
         // get account sequence
         let txWalletAccount:LokiAccount = this.walletService.getAccount(input.source);
-        let txJSON: CasinocoinTxObject = {
+        let txJSON: StoxumTxObject = {
             TransactionType: 'Payment',
             Account: input.source,
             Destination: input.destination,
@@ -677,12 +677,12 @@ export class CasinocoinService implements OnDestroy {
             txJSON.DestinationTag = input.destinationTag;
         }
         if (input.description !== undefined && input.description.length > 0) {
-            txJSON.Memos = [ CSCUtil.encodeMemo({ memo: { memoData: input.description, memoFormat: "plain/text"}})];
+            txJSON.Memos = [ STMUtil.encodeMemo({ memo: { memoData: input.description, memoFormat: "plain/text"}})];
         }
         return txJSON;
     }
 
-    signTx(tx: CasinocoinTxObject, password: string): string{
+    signTx(tx: StoxumTxObject, password: string): string{
         // get keypair for sending account
         let accountKey: LokiKey = this.walletService.getKey(tx.Account);
         // decrypt private key
@@ -691,10 +691,10 @@ export class CasinocoinService implements OnDestroy {
             // set the linked public key
             tx.SigningPubKey = accountKey.publicKey;
             // encode tx
-            let encodedTx = cscBinaryAPI.encodeForSigning(tx);
+            let encodedTx = stmBinaryAPI.encodeForSigning(tx);
             // sign transaction
-            tx.TxnSignature = cscKeyAPI.sign(encodedTx, privateKey);
-            return cscBinaryAPI.encode(tx);   
+            tx.TxnSignature = stmKeyAPI.sign(encodedTx, privateKey);
+            return stmBinaryAPI.encode(tx);   
         } else {
             // something went wrong, probably a wrong password
             return AppConstants.KEY_ERRORED;
@@ -711,7 +711,7 @@ export class CasinocoinService implements OnDestroy {
     }
 
     addTxToWallet(tx, validated): LokiTransaction {
-        this.logger.debug("### CasinocoinService - addTxToWallet");
+        this.logger.debug("### StoxumService - addTxToWallet");
         let txDirection:string;
         if(this.walletService.isAccountMine(tx.Destination)){
             txDirection = AppConstants.KEY_WALLET_TX_IN;
@@ -742,7 +742,7 @@ export class CasinocoinService implements OnDestroy {
         }
         // add Memos if defined
         if(tx.Memos){
-            dbTX.memos = CSCUtil.decodeMemos(tx.Memos);
+            dbTX.memos = STMUtil.decodeMemos(tx.Memos);
         }
         // add Destination Tag if defined
         if(tx.DestinationTag){
@@ -750,7 +750,7 @@ export class CasinocoinService implements OnDestroy {
         }
         // add Invoice ID if defined
         if(tx.InvoiceID && tx.InvoiceID.length > 0){
-            dbTX.invoiceID = CSCUtil.decodeInvoiceID(tx.InvoiceID);
+            dbTX.invoiceID = STMUtil.decodeInvoiceID(tx.InvoiceID);
         }
         // insert into the wallet
         this.walletService.addTransaction(dbTX);

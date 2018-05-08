@@ -21,47 +21,47 @@ export class SupportComponent implements OnInit {
 
   openFAQ(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://casinocoin.org/faq/");
+    this.electronService.remote.shell.openExternal("https://stoxum.org/faq/");
   }
 
   openReddit(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://www.reddit.com/r/casinocoin/");
+    this.electronService.remote.shell.openExternal("https://www.reddit.com/r/stoxum/");
   }
 
   openDiscord(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("http://casinocoin.chat/");
+    this.electronService.remote.shell.openExternal("http://stoxum.chat/");
   }
 
   openWebsite(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://casinocoin.org");
+    this.electronService.remote.shell.openExternal("https://stoxum.org");
   }
 
   openGithub(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://github.com/casinocoin/casinocoin-wallet/issues");
+    this.electronService.remote.shell.openExternal("https://github.com/Stoxum/stoxum-wallet/issues");
   }
 
   openContactForm(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://casinocoin.org/contact");
+    this.electronService.remote.shell.openExternal("https://stoxum.org/contact");
   }
 
   openEmail(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("mailto:support@casinocoin.org");
+    this.electronService.remote.shell.openExternal("mailto:support@stoxum.org");
   }
 
   openFacebook(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://www.facebook.com/CasinoCoin/");
+    this.electronService.remote.shell.openExternal("https://www.facebook.com/Stoxum/");
   }
 
   openTwitter(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://twitter.com/CasinoCoin");
+    this.electronService.remote.shell.openExternal("https://twitter.com/Stoxum");
   }
 
   openBitcoinTalk() {

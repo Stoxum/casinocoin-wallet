@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { LokiAddress } from '../../../domain/lokijs';
-import { CasinocoinService } from '../../../providers/casinocoin.service';
+import { StoxumService } from '../../../providers/stoxum.service';
 import { WalletService } from '../../../providers/wallet.service';
 import { LogService } from '../../../providers/log.service';
 import { AppConstants } from '../../../domain/app-constants';
-import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from "electron"; 
+import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from "electron";
 import { ElectronService } from '../../../providers/electron.service';
 import { SelectItem, MenuItem } from 'primeng/primeng';
-import { CSCUtil } from '../../../domain/csc-util';
+import { STMUtil } from '../../../domain/stm-util';
 
 @Component({
   selector: 'app-addressbook',
@@ -28,9 +28,9 @@ export class AddressbookComponent implements OnInit {
   invalidAccountID: boolean = true;
 
   constructor(private logger: LogService,
-              private casinocoinService: CasinocoinService,
+              private stoxumService: StoxumService,
               private walletService: WalletService,
-              private electronService: ElectronService) { 
+              private electronService: ElectronService) {
           this.logger.debug("### INIT Addressbook ###");
   }
 
@@ -44,14 +44,14 @@ export class AddressbookComponent implements OnInit {
 
     // init address context menu
     let address_context_menu_template = [
-      { label: 'Copy Address', 
+      { label: 'Copy Address',
         click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('address-context-menu-event', 'copy-address');
         }
       }
     ];
     this.address_context_menu = this.electronService.remote.Menu.buildFromTemplate(address_context_menu_template);
-    
+
     // listen to address context menu events
     this.electronService.ipcRenderer.on('address-context-menu-event', (event, arg) => {
       this.logger.debug("### Addressbook Menu Event: " + arg);
@@ -96,7 +96,7 @@ export class AddressbookComponent implements OnInit {
   }
 
   onAccountIDChange(event){
-    let valid:boolean = CSCUtil.validateAccountID(event);
+    let valid:boolean = STMUtil.validateAccountID(event);
     this.logger.debug("### Address book - accountID: " + event + " valid: " + valid);
     this.invalidAccountID = !valid;
   }

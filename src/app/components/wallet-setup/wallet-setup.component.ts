@@ -5,16 +5,16 @@ import { LogService } from '../../providers/log.service';
 import { ElectronService } from '../../providers/electron.service';
 import { SessionStorageService, LocalStorageService } from "ngx-store";
 import { AppConstants } from '../../domain/app-constants';
-import { CSCUtil } from '../../domain/csc-util';
+import { STMUtil } from '../../domain/stm-util';
 import * as LokiTypes from '../../domain/lokijs';
 import { MenuItem, MessagesModule, Message } from 'primeng/primeng';
 import { UUID } from 'angular2-uuid';
-// import { CasinocoinAPI } from 'casinocoin-libjs';
+// import { StoxumAPI } from 'stoxum-libjs';
 import { WalletService } from '../../providers/wallet.service';
-import { CasinocoinService } from '../../providers/casinocoin.service';
+import { StoxumService } from '../../providers/stoxum.service';
 import { WebsocketService } from '../../providers/websocket.service';
 import { SetupStep1Component } from './step1-component';
-import { CSCCrypto } from 'app/domain/csc-crypto';
+import { STMCrypto } from 'app/domain/stm-crypto';
 import { setTimeout } from 'timers';
 
 let path = require('path');
@@ -72,10 +72,10 @@ export class WalletSetupComponent implements OnInit {
 
   private walletHash: string;
 
-  // Create an offline CasinocoinAPI
-  // Server connection will be done via native WebSockets instead of casinocoin libjs
-  // cscAPI = new CasinocoinAPI({ server: 'ws://158.69.59.142:7007' });
-  // cscAPI = new CasinocoinAPI();
+  // Create an offline StoxumAPI
+  // Server connection will be done via native WebSockets instead of stoxum libjs
+  // stmAPI = new StoxumAPI({ server: 'ws://158.69.59.142:7007' });
+  // stmAPI = new StoxumAPI();
 
   @ViewChild('cancelButton') cancelButton;
   @ViewChild('previousButton') previousButton;
@@ -88,17 +88,17 @@ export class WalletSetupComponent implements OnInit {
                private localStorageService: LocalStorageService,
                private sessionStorageService: SessionStorageService,
                private walletService: WalletService,
-               private casinocoinService: CasinocoinService,
+               private stoxumService: StoxumService,
                private websocketService: WebsocketService ) { }
 
   ngOnInit() {
     this.logger.debug("### WalletSetup INIT ###")
     let userHome = this.electron.remote.app.getPath("home");
-    this.walletLocation = path.join(userHome, '.casinocoin');
+    this.walletLocation = path.join(userHome, '.stoxum');
     // check if connect to network -> disconnect first
-    if(this.casinocoinService.casinocoinConnectedSubject.getValue()){
+    if(this.stoxumService.stoxumConnectedSubject.getValue()){
       this.logger.debug("### WalletSetup Disconnect from network");
-      this.casinocoinService.disconnect();
+      this.stoxumService.disconnect();
     }
 
     // set default network to LIVE
@@ -109,12 +109,12 @@ export class WalletSetupComponent implements OnInit {
       this.enableCancelCreation = true;
     }
 
-    this.recoveryMnemonicWords = CSCCrypto.getRandomMnemonic();
+    this.recoveryMnemonicWords = STMCrypto.getRandomMnemonic();
 
     // if(userHome.indexOf(':\\') > 0) {
-    //   this.walletLocation = userHome + '\\' + 'Casinocoin'; 
+    //   this.walletLocation = userHome + '\\' + 'Stoxum'; 
     // } else if(userHome.startsWith('/')){
-    //   this.walletLocation = userHome + '/' + 'Casinocoin'; 
+    //   this.walletLocation = userHome + '/' + 'Stoxum'; 
     // } else {
     //   this.walletLocation = userHome;
     // }
@@ -257,7 +257,7 @@ export class WalletSetupComponent implements OnInit {
 
   finishStep4() {
     // toggle to step 5
-    this.recoveryHash = new CSCCrypto(this.recoveryMnemonicWords).encrypt(this.walletPassword);
+    this.recoveryHash = new STMCrypto(this.recoveryMnemonicWords).encrypt(this.walletPassword);
     this.logger.debug("Mnemonic Recovery Hash Created: " + this.recoveryHash);
     if(this.activeIndex < this.maxActiveIndex){
       this.activeIndex += 1;
@@ -289,7 +289,7 @@ export class WalletSetupComponent implements OnInit {
         this.walletCreated = true;
         this.logger.debug("### WalletSetup - Create new Account");
         // generate new account key pair
-        let newKeyPair:LokiTypes.LokiKey = this.casinocoinService.generateNewKeyPair();
+        let newKeyPair:LokiTypes.LokiKey = this.stoxumService.generateNewKeyPair();
         if (newKeyPair.accountID.length > 0){
           this.walletService.addKey(newKeyPair);
           // create new account
@@ -323,16 +323,16 @@ export class WalletSetupComponent implements OnInit {
               setTimeout( ()=>{ this.enableFinishCreation = true}, 2500);
               // // server found to connect to
               // this.logger.debug("### WalletSetup - Connect to Network");
-              // // connect and subscribe to Casinocoin Service messages
-              // this.casinocoinService.connect().subscribe((message: any) => {
+              // // connect and subscribe to Stoxum Service messages
+              // this.stoxumService.connect().subscribe((message: any) => {
               //   this.logger.debug("### WalletSetup - Connect Message: " + message);
               //   if(message == AppConstants.KEY_CONNECTED){
               //     this.connectedToNetwork = true;
               //     this.enableFinishCreation = true;
               //     // the websocket has a queued subject so send out the messages
-              //     this.casinocoinService.getServerState();
-              //     this.casinocoinService.subscribeToLedgerStream();
-              //     this.casinocoinService.subscribeToAccountsStream([walletAccount.accountID]);
+              //     this.stoxumService.getServerState();
+              //     this.stoxumService.subscribeToLedgerStream();
+              //     this.stoxumService.subscribeToAccountsStream([walletAccount.accountID]);
               //   }
                 
               // });
@@ -351,10 +351,10 @@ export class WalletSetupComponent implements OnInit {
   finishSetup() {
     // Close dialog and wallet setup and go to Home screen
     this.logger.debug("Setup Finished");
-    this.logger.debug("Current Timestamp CSC: " + CSCUtil.unixToCasinocoinTimestamp(Date.now()));
+    this.logger.debug("Current Timestamp STM: " + STMUtil.unixToStoxumTimestamp(Date.now()));
     let newAvailableWallet = 
       { "walletUUID": this.walletUUID, 
-        "creationDate": CSCUtil.iso8601ToCasinocoinTime(new Date().toISOString()),
+        "creationDate": STMUtil.iso8601ToStoxumTime(new Date().toISOString()),
         "location": this.walletLocation,
         "hash": this.walletHash,
         "network" : (this.walletTestNetwork ? "TEST" : "LIVE")
@@ -442,7 +442,7 @@ export class WalletSetupComponent implements OnInit {
   }
 
   generateWalletAccount() {
-    // this.walletAccount = this.cscAPI.generateAddress();
+    // this.walletAccount = this.stmAPI.generateAddress();
     this.logger.debug("### WalletSetup - Account: " + JSON.stringify(this.walletAccount));
     // let account = this.walletService.addAccount(this.walletAccount['address'], this.walletAccount['secret'], "Default Account");
     // this.logger.debug("### WalletSetup - Account Created: " + JSON.stringify(account));

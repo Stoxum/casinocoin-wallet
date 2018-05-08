@@ -14,14 +14,14 @@ import { Connection } from 'rxjs-websockets';
 export class WebsocketService {
 
     private TEST_SERVERS: Array<ServerDefinition> = [
-        { server_id: 'wst01.casinocoin.org', server_url: 'ws://wst01.casinocoin.org:7007/', response_time: -1 },
-        { server_id: 'wst02.casinocoin.org', server_url: 'ws://wst02.casinocoin.org:7007/', response_time: -1 }
+        { server_id: 't1.stoxum.com', server_url: 'ws://t1.stoxum.com:31231/', response_time: -1 },
+        { server_id: 't2.stoxum.com', server_url: 'ws://t2.stoxum.com:31231/', response_time: -1 }
     ];
     private PROD_SERVERS: Array<ServerDefinition> = [
-        { server_id: 'ws01.casinocoin.org', server_url: 'wss://ws01.casinocoin.org:4443/', response_time: -1 },
-        { server_id: 'ws02.casinocoin.org', server_url: 'wss://ws02.casinocoin.org:4443/', response_time: -1 },
-        { server_id: 'ws03.casinocoin.org', server_url: 'wss://ws03.casinocoin.org:4443/', response_time: -1 },
-        { server_id: 'ws04.casinocoin.org', server_url: 'wss://ws04.casinocoin.org:4443/', response_time: -1 }
+        { server_id: 's1.stoxum.com', server_url: 'wss://s1.stoxum.com:51231/', response_time: -1 },
+        { server_id: 's2.stoxum.com', server_url: 'wss://s2.stoxum.com:51231/', response_time: -1 },
+        { server_id: 's3.stoxum.com', server_url: 'wss://s3.stoxum.com:51231/', response_time: -1 },
+        { server_id: 's4.stoxum.com', server_url: 'wss://s4.stoxum.com:51231/', response_time: -1 }
     ];
 
     private currentServerFound: boolean = false;

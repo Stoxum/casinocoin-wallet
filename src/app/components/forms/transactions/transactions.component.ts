@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { InputText, DataTable, LazyLoadEvent } from 'primeng/primeng';
 import { LogService } from '../../../providers/log.service';
 import { SelectItem, Dropdown, MenuItem, Message } from 'primeng/primeng';
-import { CasinocoinService } from '../../../providers/casinocoin.service';
+import { StoxumService } from '../../../providers/stoxum.service';
 import { WalletService } from '../../../providers/wallet.service';
 import { LedgerStreamMessages } from '../../../domain/websocket-types';
-import { CSCUtil } from '../../../domain/csc-util';
+import { STMUtil } from '../../../domain/stm-util';
 import { AppConstants } from '../../../domain/app-constants';
 import { LokiTransaction } from '../../../domain/lokijs';
 import { ElectronService } from '../../../providers/electron.service';
@@ -50,7 +50,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
   uiChangeSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
   
   constructor(private logger:LogService, 
-              private casinocoinService: CasinocoinService,
+              private stoxumService: StoxumService,
               private walletService: WalletService,
               private electronService: ElectronService,
               private router: Router ) { }
@@ -106,16 +106,16 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
         this.accounts.push({label:'Select Account ...', value:null});
         this.walletService.getAllAccounts().forEach( element => {
           if(new Big(element.balance) > 0){
-            let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + CSCUtil.dropsToCsc(element.balance) + "]";
+            let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToCsc(element.balance) + "]";
             this.accounts.push({label: accountLabel, value: element.accountID});
           }
         });
         // subscribe to account updates
-        this.casinocoinService.accountSubject.subscribe( account => {
+        this.stoxumService.accountSubject.subscribe( account => {
           this.doBalanceUpdate();
         });
         // subscribe to transaction updates
-        this.casinocoinService.transactionSubject.subscribe( tx => {
+        this.stoxumService.transactionSubject.subscribe( tx => {
           this.logger.debug("### TransactionsComponent TX Update: " + JSON.stringify(tx));
           let updateTxIndex = this.transactions.findIndex( item => item.txID == tx.txID);
           if( updateTxIndex >= 0 ){
@@ -129,7 +129,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
       }
     });
     // get network ledgers
-    this.ledgers = this.casinocoinService.ledgers;
+    this.ledgers = this.stoxumService.ledgers;
   }
 
   ngAfterViewInit(){
@@ -161,7 +161,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
     this.accounts.push({label:'Select Account ...', value:null});
     this.walletService.getAllAccounts().forEach( element => {
       if(new Big(element.balance) > 0){
-        let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + CSCUtil.dropsToCsc(element.balance) + "]";
+        let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToCsc(element.balance) + "]";
         this.accounts.push({label: accountLabel, value: element.accountID});
       }
     });
@@ -236,7 +236,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
   }
 
   convertCscTimestamp(inputTime) {
-    return CSCUtil.casinocoinToUnixTimestamp(inputTime);
+    return STMUtil.stoxumToUnixTimestamp(inputTime);
   }
 
   showTxContextMenu(event){

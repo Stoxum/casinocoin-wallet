@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CasinocoinService } from '../../../providers/casinocoin.service';
+import { StoxumService } from '../../../providers/stoxum.service';
 import { WalletService } from '../../../providers/wallet.service';
-import { CSCUtil } from '../../../domain/csc-util';
+import { STMUtil } from '../../../domain/stm-util';
 import { LedgerStreamMessages, ServerStateMessage } from '../../../domain/websocket-types';
 import { LokiTransaction } from '../../../domain/lokijs';
 import { LogService } from '../../../providers/log.service';
@@ -24,15 +24,15 @@ export class OverviewComponent implements OnInit {
   last_transaction:number;
 
   constructor(private logger: LogService,
-              private casinocoinService: CasinocoinService,
+              private stoxumService: StoxumService,
               private walletService: WalletService) { 
     this.logger.debug("### INIT Overview ###");
   }
 
   ngOnInit() {
     this.logger.debug("### Overview ngOnInit() ###");
-    this.ledgers = this.casinocoinService.ledgers;
-    this.casinocoinService.serverStateSubject.subscribe( state => {
+    this.ledgers = this.stoxumService.ledgers;
+    this.stoxumService.serverStateSubject.subscribe( state => {
       this.serverState = state;
     });
     this.walletService.openWalletSubject.subscribe( result => {
@@ -47,7 +47,7 @@ export class OverviewComponent implements OnInit {
         this.fiat_balance = "0.00";
         this.transactions = this.walletService.getAllTransactions();
         // subcribe to transaction updates
-        this.casinocoinService.transactionSubject.subscribe( tx => {
+        this.stoxumService.transactionSubject.subscribe( tx => {
           this.logger.debug("### Overview TX Update: " + JSON.stringify(tx));
           let updateTxIndex = this.transactions.findIndex( item => item.txID == tx.txID);
           if( updateTxIndex >= 0 ){
@@ -70,7 +70,7 @@ export class OverviewComponent implements OnInit {
   }
 
   convertCscTimestamp(inputTime) {
-    return CSCUtil.casinocoinToUnixTimestamp(inputTime);
+    return STMUtil.stoxumToUnixTimestamp(inputTime);
   }
 
   getTXAccount(rowData){

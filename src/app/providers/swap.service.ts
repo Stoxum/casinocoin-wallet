@@ -4,7 +4,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { WalletService } from './wallet.service';
 import { LokiSwap } from '../domain/lokijs';
-import { CSCUtil } from '../domain/csc-util';
+import { STMUtil } from '../domain/stm-util';
 import { environment } from '../../environments';
 import { AppConstants } from '../domain/app-constants';
 
@@ -56,8 +56,8 @@ export class SwapService {
                         accountID: accountID, 
                         swapID: createdSwap.public_id,
                         swapAmount: createdSwap.swap_amount,
-                        initiatedTimestamp: CSCUtil.iso8601ToCasinocoinTime(createdSwap.created_date),
-                        updatedTimestamp: CSCUtil.iso8601ToCasinocoinTime(createdSwap.updated_date),
+                        initiatedTimestamp: STMUtil.iso8601ToStoxumTime(createdSwap.created_date),
+                        updatedTimestamp: STMUtil.iso8601ToStoxumTime(createdSwap.updated_date),
                         depositAddress: createdSwap.swap_address,
                         swapStatus: createdSwap.status[0]
                     };
@@ -104,7 +104,7 @@ export class SwapService {
                             if(onlineSwap[0].storage){
                                 this.swaps[updateSwapIndex].storage = onlineSwap[0].storage;
                             }
-                            this.swaps[updateSwapIndex].updatedTimestamp = CSCUtil.iso8601ToCasinocoinTime(onlineSwap[0].updated_date);
+                            this.swaps[updateSwapIndex].updatedTimestamp = STMUtil.iso8601ToStoxumTime(onlineSwap[0].updated_date);
                             // save updated swap to the database
                             this.walletService.updateSwap(this.swaps[updateSwapIndex]);
                         }

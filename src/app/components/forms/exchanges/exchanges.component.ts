@@ -4,7 +4,7 @@ import { AppConstants } from '../../../domain/app-constants';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from "electron"; 
 import { ElectronService } from '../../../providers/electron.service';
 import { MarketService } from '../../../providers/market.service';
-import { CSCUtil } from '../../../domain/csc-util';
+import { STMUtil } from '../../../domain/stm-util';
 import { ExchangesType } from '../../../domain/service-types';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import Big from 'big.js';

@@ -1,45 +1,45 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { CSCUtil } from './domain/csc-util';
+import { STMUtil } from './domain/stm-util';
 
 /*
- * Transform CSC date to indicated format
+ * Transform STM date to indicated format
  * Usage:
- *   value | cscDate:"date_format"
+ *   value | stmDate:"date_format"
 */
-@Pipe({name: 'cscDate'})
-export class CSCDatePipe implements PipeTransform {
+@Pipe({name: 'stmDate'})
+export class STMDatePipe implements PipeTransform {
     constructor(private datePipe: DatePipe){}
 
     transform(value: number, format: string): string {
-        let unixTimestamp = CSCUtil.casinocoinToUnixTimestamp(value);
+        let unixTimestamp = STMUtil.stoxumToUnixTimestamp(value);
         return this.datePipe.transform(unixTimestamp, format);
     }
 }
 
-@Pipe({name: 'cscAmount'})
-export class CSCAmountPipe implements PipeTransform {
+@Pipe({name: 'stmAmount'})
+export class STMAmountPipe implements PipeTransform {
     constructor(private numberPipe: DecimalPipe){}
 
     transform(value, includeCurrency: boolean, numberFormat: boolean): string {
         if(value == null){
             return "";
         } else if(isNaN(value)){
-            let amount = CSCUtil.dropsToCsc(value);
+            let amount = STMUtil.dropsToCsc(value);
             if(numberFormat != null && numberFormat){
                 amount = this.numberPipe.transform(amount, "1.2-8");
             }
             if(includeCurrency){
-                amount = amount + " CSC";
+                amount = amount + " STM";
             }
             return amount;
         } else {
-            let amount = CSCUtil.dropsToCsc(value.toString());
+            let amount = STMUtil.dropsToCsc(value.toString());
             if(numberFormat != null && numberFormat){
                 amount = this.numberPipe.transform(amount, "1.2-8");
             }
             if(includeCurrency){
-                amount = amount + " CSC";
+                amount = amount + " STM";
             }
             return amount;
         }

@@ -18,7 +18,7 @@ const globalTS:any = global;
 globalTS.vars = {};
 
 // set app id
-app.setAppUserModelId("org.casinocoin.desktop.wallet");
+app.setAppUserModelId("org.stoxum.desktop.wallet");
 
 // set property for exit dialog
 let showExitPrompt = true;
@@ -27,7 +27,7 @@ globalTS.vars.exitFromRenderer = false;
 globalTS.vars.exitFromLogin = false;
 
 // define auto update url
-let updaterFeedURL = 'https://download.casinocoin.org/update/' + platform + '/' + version;
+let updaterFeedURL = 'https://download.stoxum.org/update/' + platform + '/' + version;
 if(version.indexOf("beta") !== -1){
 	updaterFeedURL = updaterFeedURL + '/' + 'beta';
 }
@@ -97,7 +97,7 @@ function appUpdater() {
 }
 
 // set the default userData directory
-const defaultCSCPath = path.join(app.getPath('home'), '.casinocoin');
+const defaultCSCPath = path.join(app.getPath('home'), '.stoxum');
 if (!fs.existsSync(defaultCSCPath)){
   fs.mkdirSync(defaultCSCPath);
 }
@@ -204,7 +204,7 @@ function createWindow() {
   ipcMain.on('push-notification', (event, arg) => { 
     const notification = notifier.notify(arg.title, {
       message: arg.body,
-      icon: path.join(__dirname, 'assets/brand/casinocoin-icon-256x256.png'),
+      icon: path.join(__dirname, 'assets/brand/stoxum-icon-256x256.png'),
       duration: 4
     });
     
@@ -283,7 +283,7 @@ function createWindow() {
 
   // Create the Application's main menu
   const template : Electron.MenuItemConstructorOptions[] = [{
-    label: 'CasinoCoin Wallet',
+    label: 'Stoxum Wallet',
     submenu: [
       {
         label: 'Cut',

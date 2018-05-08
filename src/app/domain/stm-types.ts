@@ -11,7 +11,7 @@ export type PrepareTxPayment = {
     destinationTag?: int;
 }
 
-export type CasinocoinTxObject = {
+export type StoxumTxObject = {
     TransactionType: string;
     Account: string;
     Destination: string;
@@ -21,14 +21,14 @@ export type CasinocoinTxObject = {
     Sequence: number;
     LastLedgerSequence : number;
     InvoiceID?: string;
-    Memos?: Array<CasinocoinMemo>;
+    Memos?: Array<StoxumMemo>;
     SourceTag?: int;
     DestinationTag?: int;
     TxnSignature?: string;
     SigningPubKey?: string;
 }
 
-export type CasinocoinMemo = {
+export type StoxumMemo = {
     Memo: {
         MemoData?: string;
         MemoFormat?: string;
@@ -36,13 +36,13 @@ export type CasinocoinMemo = {
     }
 }
 
-export type CasinocoindAmountIOU = {
+export type StoxumdAmountIOU = {
     currency: string,
     value: string,
     issuer ? : string
 }
 
-export type CasinocoindAmount = string | CasinocoindAmountIOU
+export type StoxumdAmount = string | StoxumdAmountIOU
 
 
 export type Amount = {
@@ -58,7 +58,7 @@ export type LaxLaxAmount = {
     counterparty ? : string
 }
 
-// A currency-counterparty pair, or just currency if it's CSC
+// A currency-counterparty pair, or just currency if it's STM
 export type Issue = {
     currency: string,
     counterparty ? : string
@@ -91,7 +91,7 @@ export type Memo = {
 }
 
 export type PaymentFlags = {
-    NoCasinocoinDirect: 0x00010000,
+    NoStoxumDirect: 0x00010000,
     PartialPayment: 0x00020000,
     LimitQuality: 0x00040000
 }
@@ -108,12 +108,12 @@ export type Payment = {
     // liquidity or funds in the source_account account
     allowPartialPayment ? : boolean,
     // A boolean that can be set to true if paths are specified and the sender
-    // would like the Casinocoin Network to disregard any direct paths from
+    // would like the Stoxum Network to disregard any direct paths from
     // the source_account to the destination_account. This may be used to take
     // advantage of an arbitrage opportunity or by gateways wishing to issue
     // balances from a hot wallet to a user who has mistakenly set a trustline
     // directly to the hot wallet
-    noDirectCasinocoin ? : boolean,
+    noDirectStoxum ? : boolean,
     limitQuality ? : boolean
 }
 
@@ -135,7 +135,7 @@ export type Prepare = {
     }
 }
 
-export type CSCURI = {
+export type STMURI = {
     address: string, 
     amount?: string, 
     destinationTag?: number, 

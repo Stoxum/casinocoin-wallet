@@ -1,28 +1,28 @@
 import Big from 'big.js';
 import int from 'int';
 
-import { Amount, Memo, CasinocoindAmount, CasinocoinMemo, CSCURI }  from './csc-types';
+import { Amount, Memo, StoxumdAmount, StoxumMemo, STMURI }  from './stm-types';
 
-export class CSCUtil {
+export class STMUtil {
 
-    static casinocoinToUnixTimestamp(rpepoch: number): number {
+    static stoxumToUnixTimestamp(rpepoch: number): number {
         return (rpepoch + 0x386D4380) * 1000
     }
     
-    static unixToCasinocoinTimestamp(timestamp: number): number {
+    static unixToStoxumTimestamp(timestamp: number): number {
         return Math.round(timestamp / 1000) - 0x386D4380
     }
     
-    static casinocoinTimeToISO8601(casinocoinTime: number): string {
-        return new Date(this.casinocoinToUnixTimestamp(casinocoinTime)).toISOString()
+    static stoxumTimeToISO8601(stoxumTime: number): string {
+        return new Date(this.stoxumToUnixTimestamp(stoxumTime)).toISOString()
     }
     
-    static iso8601ToCasinocoinTime(iso8601: string): number {
-        return this.unixToCasinocoinTimestamp(Date.parse(iso8601))
+    static iso8601ToStoxumTime(iso8601: string): number {
+        return this.unixToStoxumTimestamp(Date.parse(iso8601))
     }
 
-    static casinocoinTimeNow(): number {
-        return this.unixToCasinocoinTimestamp(Date.now());
+    static stoxumTimeNow(): number {
+        return this.unixToStoxumTimestamp(Date.now());
     }
 
     static dropsToCsc(drops: string): string {
@@ -35,17 +35,17 @@ export class CSCUtil {
         
     }
 
-    static cscToDrops(csc: string): string {
-        let csc_drops = (new Big(csc)).times(100000000.0);
-        return csc_drops.toString();
+    static stmToDrops(stm: string): string {
+        let stm_drops = (new Big(stm)).times(100000000.0);
+        return stm_drops.toString();
     }
 
-    static toCasinocoindAmount(amount: Amount): CasinocoindAmount {
-        if (amount.currency === 'CSC') {
-            let csc_drops = this.cscToDrops(amount.value);
-            return csc_drops;
+    static toStoxumdAmount(amount: Amount): StoxumdAmount {
+        if (amount.currency === 'STM') {
+            let stm_drops = this.stmToDrops(amount.value);
+            return stm_drops;
         }
-        let default_object: CasinocoindAmount = {
+        let default_object: StoxumdAmount = {
             currency: amount.currency,
             issuer: amount.counterparty ? amount.counterparty :  undefined,
             value: amount.value
@@ -53,7 +53,7 @@ export class CSCUtil {
         return default_object;
     }
 
-    static decodeMemos(memos: Array<CasinocoinMemo>) : Array<Memo> {
+    static decodeMemos(memos: Array<StoxumMemo>) : Array<Memo> {
         function removeUndefined(obj: Object): Object {
             // return _.omit(obj, _.isUndefined)
             Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
@@ -78,7 +78,7 @@ export class CSCUtil {
         });
     }
 
-    static encodeMemo(inputMemo: Memo): CasinocoinMemo {
+    static encodeMemo(inputMemo: Memo): StoxumMemo {
         function removeUndefined(obj: Object): Object {
             // return _.omit(obj, _.isUndefined)
             Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
@@ -141,7 +141,7 @@ export class CSCUtil {
     }
 
     static validateAccountID(accountID: string): boolean {
-        // prepare position lookup table with casinocoin alphabet
+        // prepare position lookup table with stoxum alphabet
         var vals = 'cpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2brdeCg65jkm8oFqi1tuvAxyz';
         // check if address starts with lowercase 'c'
         if(!accountID.startsWith('c')){
@@ -201,11 +201,11 @@ export class CSCUtil {
     }
 
     static generateCXXQRCodeURI(address: string){
-        return "casinocoin:" + address + "?label=" + encodeURI("Swap Deposit");
+        return "stoxum:" + address + "?label=" + encodeURI("Swap Deposit");
     }
 
-    static generateCSCQRCodeURI(input: CSCURI){
-        let uri = "https://casinocoin.org/send?to=" + input.address;
+    static generateCSCQRCodeURI(input: STMURI){
+        let uri = "https://stoxum.org/send?to=" + input.address;
         if(input.amount){
             uri = uri + "&amount=" + input.amount;
         }

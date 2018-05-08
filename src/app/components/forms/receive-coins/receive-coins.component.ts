@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LokiAccount, LokiKey, LokiAddress } from '../../../domain/lokijs';
-import { CSCUtil } from '../../../domain/csc-util';
+import { STMUtil } from '../../../domain/stm-util';
 import { LocalStorage, SessionStorage } from "ngx-store";
-import { CasinocoinService } from '../../../providers/casinocoin.service';
+import { StoxumService } from '../../../providers/stoxum.service';
 import { WalletService } from '../../../providers/wallet.service';
 import { LogService } from '../../../providers/log.service';
 import { AppConstants } from '../../../domain/app-constants';
@@ -29,13 +29,13 @@ export class ReceiveCoinsComponent implements OnInit {
   selectedReceiveRow: LokiAccount;
   receive_context_menu: ElectronMenu;
   showReceiveQRCodeDialog: boolean = false;
-  cscReceiveURI: string = "";
+  stmReceiveURI: string = "";
   sendAmount:string;
   destinationTag: number;
   label: string;
 
   constructor(private logger: LogService,
-              private casinocoinService: CasinocoinService,
+              private stoxumService: StoxumService,
               private walletService: WalletService,
               private electronService: ElectronService) { 
           this.logger.debug("### INIT ReceiveCoins ###");
@@ -53,7 +53,7 @@ export class ReceiveCoinsComponent implements OnInit {
     });
 
     // subscribe to account updates
-    this.casinocoinService.accountSubject.subscribe( account => {
+    this.stoxumService.accountSubject.subscribe( account => {
       this.accounts = this.walletService.getAllAccounts();
     });
 
@@ -93,7 +93,7 @@ export class ReceiveCoinsComponent implements OnInit {
   }
 
   convertCscTimestamp(inputTime) {
-    return CSCUtil.casinocoinToUnixTimestamp(inputTime);
+    return STMUtil.stoxumToUnixTimestamp(inputTime);
   }
 
   showReceiveContextMenu(event){
@@ -128,7 +128,7 @@ export class ReceiveCoinsComponent implements OnInit {
   showReceiveQRCode(){
     if(this.selectedReceiveRow){
       this.logger.debug("showReceiveQRCode: " + JSON.stringify(this.selectedReceiveRow));
-      this.cscReceiveURI = CSCUtil.generateCSCQRCodeURI({ address: this.selectedReceiveRow.accountID });
+      this.stmReceiveURI = STMUtil.generateCSCQRCodeURI({ address: this.selectedReceiveRow.accountID });
       this.showReceiveQRCodeDialog = true;
     }
   }
@@ -166,7 +166,7 @@ export class ReceiveCoinsComponent implements OnInit {
       this.walletPassword = "";
     } else {
       // generate new key pair offline
-      let newKeyPair:LokiKey = this.casinocoinService.generateNewKeyPair();
+      let newKeyPair:LokiKey = this.stoxumService.generateNewKeyPair();
       let accountLabel = "";
       if (newKeyPair.accountID.length > 0){
         // add keypair to database
@@ -216,6 +216,6 @@ export class ReceiveCoinsComponent implements OnInit {
     if(this.label && this.label.length > 0){
       uriObject['label'] = this.label;
     }
-    this.cscReceiveURI = CSCUtil.generateCSCQRCodeURI(uriObject);
+    this.stmReceiveURI = STMUtil.generateCSCQRCodeURI(uriObject);
   }
 }

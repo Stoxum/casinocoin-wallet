@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { LokiAddress, LokiAccount, LokiKey } from '../../../domain/lokijs';
-import { CasinocoinService } from '../../../providers/casinocoin.service';
+import { StoxumService } from '../../../providers/stoxum.service';
 import { WalletService } from '../../../providers/wallet.service';
 import { LogService } from '../../../providers/log.service';
 import { AppConstants } from '../../../domain/app-constants';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from "electron"; 
 import { ElectronService } from '../../../providers/electron.service';
 import { SelectItem, MenuItem } from 'primeng/primeng';
-import { CSCUtil } from '../../../domain/csc-util';
-import * as keypairs from 'casinocoin-libjs-keypairs';
+import { STMUtil } from '../../../domain/stm-util';
+import * as keypairs from 'stoxum-keypairs';
 import { QRCodeModule } from 'angular2-qrcode';
 
 
@@ -27,7 +27,7 @@ export class ImportpaperwalletComponent implements OnInit {
   address: any;
   allAccounts: any;
 
-  constructor(private casinocoinService: CasinocoinService, private walletService: WalletService, private logger: LogService) { }
+  constructor(private stoxumService: StoxumService, private walletService: WalletService, private logger: LogService) { }
 
   ngOnInit() {
   }
@@ -65,7 +65,7 @@ export class ImportpaperwalletComponent implements OnInit {
         }
       }
 
-      //let newKeyPair:LokiKey = this.casinocoinService.generateNewKeyPair();
+      //let newKeyPair:LokiKey = this.stoxumService.generateNewKeyPair();
       let newKeyPair: LokiKey = { 
         privateKey: "", 
         publicKey: "", 

@@ -16,7 +16,7 @@ import { AppRoutingModule }         from './app-routing.module';
 import { ElectronService }          from './providers/electron.service';
 import { LogService }               from './providers/log.service';
 import { WalletService }            from './providers/wallet.service';
-import { CasinocoinService }        from './providers/casinocoin.service';
+import { StoxumService }        from './providers/stoxum.service';
 import { WebsocketService }         from './providers/websocket.service';
 import { SwapService }              from './providers/swap.service';
 import { NotificationService }      from './providers/notification.service';
@@ -33,8 +33,8 @@ import { WebStorageModule,
 
 import { DatePipe, DecimalPipe,
          CurrencyPipe }             from '@angular/common';
-import { CSCDatePipe, 
-         CSCAmountPipe,
+import { STMDatePipe, 
+         STMAmountPipe,
          ToNumberPipe }             from './app-pipes.module';
 
 import { AppComponent }             from './app.component';
@@ -76,7 +76,7 @@ import { MatListModule, MatSidenavModule, MatTooltipModule,
 @NgModule({
   declarations: [
     AppComponent,
-    CSCDatePipe, CSCAmountPipe,ToNumberPipe,
+    STMDatePipe, STMAmountPipe,ToNumberPipe,
     HomeComponent,
     WalletSetupComponent,
     SetupStep1Component, SetupStep2Component, 
@@ -116,14 +116,14 @@ import { MatListModule, MatSidenavModule, MatTooltipModule,
   providers: [
     Logger, Options,FormBuilder,
     DatePipe, DecimalPipe, CurrencyPipe,
-    CSCDatePipe, CSCAmountPipe, ToNumberPipe,
+    STMDatePipe, STMAmountPipe, ToNumberPipe,
     HttpClient,
     ElectronService,
     LogService,
     AuthGuard,
     WebsocketService,
     WalletService,
-    CasinocoinService,
+    StoxumService,
     SwapService,
     MessageService,
     NotificationService,

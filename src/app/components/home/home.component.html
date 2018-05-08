@@ -3,10 +3,10 @@
         <mat-sidenav-container class="home-sidenav-container">
             <mat-sidenav mode="side" opened="true">
                 <div class="app-nav">
-                    <img src="../../../assets/brand/casinocoin-logo.png" alt="CasinoCoin" class="csc-logo" />
+                    <img src="../../../assets/brand/stoxum-logo.png" alt="Stoxum" class="stm-logo" />
                     <div class="ui-g menu-balance">
                         <div class="ui-g-12 menu-text amount-label">Balance:</div>
-                        <div class="ui-g-12 amount-value"> {{walletBalance | cscAmount : true : true}}</div>
+                        <div class="ui-g-12 amount-value"> {{walletBalance | stmAmount : true : true}}</div>
                     </div>
                     <div class="menu-nav">
                         <mat-list style="padding-top: 20px;">
@@ -114,7 +114,7 @@
 </div>
 <p-dialog class="dialog-header" [(visible)]="showPrivateKeyImportDialog" [width]="450" [height]="350" [closable]="true" 
         [modal]="true" appendTo="body">
-    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Import private keys</span></p-header>
+    <p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Import private keys</span></p-header>
     <div class="ui-g ui-fluid">
         <div class="ui-g-1"></div>
         <div class="ui-g-10">Enter the password for your wallet.</div>
@@ -156,14 +156,14 @@
 
 <p-dialog class="dialog-header" [(visible)]="showSettingsDialog" [width]="640" [height]="400" [closable]="true" 
         [modal]="true" appendTo="body">
-    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Settings</span></p-header>
+    <p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Settings</span></p-header>
     <div class="ui-g ui-fluid">
         <div class="ui-g-1"></div>
         <div class="ui-g-10">
             <div class="ui-g">
                 <div class="ui-g-4">Wallet Language</div><div class="ui-g-8 bold-value">English</div>
                 <div class="ui-g-4">Wallet UUID</div><div class="ui-g-8 bold-value">{{currentWalletObject['walletUUID']}}</div>
-                <div class="ui-g-4">Wallet Creationdate</div><div class="ui-g-8 bold-value">{{currentWalletObject['creationDate'] | cscDate : 'yyyy-MM-dd HH:mm:ss'}}</div>
+                <div class="ui-g-4">Wallet Creationdate</div><div class="ui-g-8 bold-value">{{currentWalletObject['creationDate'] | stmDate : 'yyyy-MM-dd HH:mm:ss'}}</div>
                 <div class="ui-g-4">Fiat value currency</div>
                 <div class="ui-g-8 bold-value">
                     <p-dropdown
@@ -186,7 +186,7 @@
 </p-dialog>
 <p-dialog class="dialog-header" [(visible)]="showServerInfoDialog" [width]="640" [height]="500" [closable]="true" 
         [modal]="true" appendTo="body">
-    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Server Information</span></p-header>
+    <p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Server Information</span></p-header>
     <div class="ui-g">
         <div class="ui-g-6">Server</div><div class="ui-g-6 bold-value">{{currentServer?.server_id}}</div>
         <div class="ui-g-6">Server Version</div><div class="ui-g-6 bold-value">{{serverState?.build_version}}</div>
@@ -196,16 +196,16 @@
         <div class="ui-g-6">Server Status</div><div class="ui-g-6 bold-value">{{serverState?.server_state}}</div>
         <div class="ui-g-6">Connected Peers</div><div class="ui-g-6 bold-value">{{serverState?.peers}}</div>
         <div class="ui-g-6">Last Ledger Sequence</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.seq}}</div>
-        <div class="ui-g-6">Last Closing Time</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.close_time | cscDate: 'HH:mm:ss'}}</div>
+        <div class="ui-g-6">Last Closing Time</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.close_time | stmDate: 'HH:mm:ss'}}</div>
         <div class="ui-g-6">Close Duration (msec)</div><div class="ui-g-6 bold-value">{{serverState?.last_close?.converge_time}}</div>
         <div class="ui-g-6">Last Close Proposers</div><div class="ui-g-6 bold-value">{{serverState?.last_close?.proposers}}</div>
-        <div class="ui-g-6">Current Fee</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.base_fee | cscAmount}}</div>
-        <div class="ui-g-6">Current Account Reserve</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.reserve_base | cscAmount}}</div>
+        <div class="ui-g-6">Current Fee</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.base_fee | stmAmount}}</div>
+        <div class="ui-g-6">Current Account Reserve</div><div class="ui-g-6 bold-value">{{serverState?.validated_ledger?.reserve_base | stmAmount}}</div>
     </div>
 </p-dialog>
 
 <p-dialog [(visible)]="showPasswordDialog" [width]="450" [height]="225" [closable]="true" [modal]="true" appendTo="body">
-<p-header><span><i class="icon csc-dialog-icon icon-chip"></i>CasinoCoin Wallet Password</span></p-header>
+<p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Stoxum Wallet Password</span></p-header>
 <div class="ui-g ui-fluid">
     <div class="ui-g-1"></div>
     <div class="ui-g-10">

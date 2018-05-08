@@ -5,12 +5,12 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { Subject } from 'rxjs/Subject';
 import { SessionStorageService, LocalStorageService } from "ngx-store";
 import { AppConstants } from '../domain/app-constants';
-import { CSCUtil } from '../domain/csc-util';
-import { CSCCrypto } from '../domain/csc-crypto';
+import { STMUtil } from '../domain/stm-util';
+import { STMCrypto } from '../domain/stm-crypto';
 import { ElectronService } from '../providers/electron.service';
 import { NotificationService, NotificationType, SeverityType } from '../providers/notification.service';
 import { WalletUpgrade } from './upgrade/walletupgrade';
-import * as cscKeyAPI from 'casinocoin-libjs-keypairs';
+import * as stmKeyAPI from 'stoxum-keypairs';
 import Big from 'big.js';
 import int from 'int';
 
@@ -73,7 +73,7 @@ export class WalletService {
     }
     let userPath = this.electron.remote.app.getPath("home");
     if(walletLocation.length == 0){
-      walletLocation = path.join(userPath, '.casinocoin');
+      walletLocation = path.join(userPath, '.stoxum');
     }
     // check if path exists, else create
     this.logger.debug("### WalletService, check if wallet location exists");
@@ -104,10 +104,10 @@ export class WalletService {
           walletUUID: walletUUID,
           walletHash: this.generateWalletPasswordHash(walletUUID, walletSecret),
           mnemonicRecovery: mnemonicRecovery,
-          creationTimestamp: CSCUtil.unixToCasinocoinTimestamp(Date.now()),
-          updatedTimestamp: CSCUtil.unixToCasinocoinTimestamp(Date.now()),
+          creationTimestamp: STMUtil.unixToStoxumTimestamp(Date.now()),
+          updatedTimestamp: STMUtil.unixToStoxumTimestamp(Date.now()),
           location: walletLocation,
-          lastOpenedTimestamp: CSCUtil.unixToCasinocoinTimestamp(Date.now())
+          lastOpenedTimestamp: STMUtil.unixToStoxumTimestamp(Date.now())
         }
         this.dbMetadata.insert(initDBVersion);
       } else if(collection.name == "accounts")
@@ -126,7 +126,7 @@ export class WalletService {
     });
     
     let lokiFsAdapter = new lfsa();
-    // let idbAdapter = new LokiIndexedAdapter('casinocoin');
+    // let idbAdapter = new LokiIndexedAdapter('stoxum');
     let walletDB = new loki(dbPath, 
       { adapter: lokiFsAdapter,
         autoloadCallback: createCollections,
@@ -209,7 +209,7 @@ export class WalletService {
       });
   
       let lokiFsAdapter = new lfsa();
-      // let idbAdapter = new LokiIndexedAdapter('casinocoin');
+      // let idbAdapter = new LokiIndexedAdapter('stoxum');
       let walletDB = new loki(dbPath, 
         { adapter: lokiFsAdapter,
           autoloadCallback: openCollections,
@@ -277,11 +277,11 @@ export class WalletService {
 
     // Decrypt all keys with old password and update DB
     this.logger.debug("### ChangePassword - Decrypt Wallet Keys with Old Password");
-    let cscCrypto = new CSCCrypto(currentWalletPassword);
+    let stmCrypto = new STMCrypto(currentWalletPassword);
     let allKeys: Array<LokiTypes.LokiKey> = this.keys.find();
     allKeys.forEach( (element, index, array) => {
-      let decodedSecret:string = cscCrypto.decrypt(element.secret);
-      let decodedKey = cscCrypto.decrypt(element.privateKey);
+      let decodedSecret:string = stmCrypto.decrypt(element.secret);
+      let decodedKey = stmCrypto.decrypt(element.privateKey);
       element.privateKey = decodedKey;
       element.secret = decodedSecret;
       element.encrypted = false;
@@ -348,7 +348,7 @@ export class WalletService {
       });
   
       let lokiFsAdapter = new lfsa();
-      // let idbAdapter = new LokiIndexedAdapter('casinocoin');
+      // let idbAdapter = new LokiIndexedAdapter('stoxum');
       let walletDB = new loki(dbPath, 
         { adapter: lokiFsAdapter,
           autoloadCallback: openCollections,
@@ -377,8 +377,8 @@ export class WalletService {
   checkForUpgrades(walletPassword: string){
     this.logger.debug("### WalletService - checkForUpgrades() ### ");
     let dbVersionString = this.getDBMetadata().dbVersion;
-    let dbVersion:int = CSCUtil.convertStringVersionToNumber( dbVersionString );
-    let appDBVersion:int = CSCUtil.convertStringVersionToNumber( AppConstants.KEY_DB_VERSION);
+    let dbVersion:int = STMUtil.convertStringVersionToNumber( dbVersionString );
+    let appDBVersion:int = STMUtil.convertStringVersionToNumber( AppConstants.KEY_DB_VERSION);
     let walletUpgrade: WalletUpgrade = new WalletUpgrade(this.logger, this);
     let newVersion:string;
     let walletUpgraded:boolean = false;
@@ -410,9 +410,9 @@ export class WalletService {
       walletHash: this.currentDBMetadata.walletHash,
       mnemonicRecovery: this.currentDBMetadata.mnemonicRecovery,
       creationTimestamp: this.currentDBMetadata.creationTimestamp,
-      updatedTimestamp: CSCUtil.unixToCasinocoinTimestamp(Date.now()),
+      updatedTimestamp: STMUtil.unixToStoxumTimestamp(Date.now()),
       location: this.currentDBMetadata.location,
-      lastOpenedTimestamp: CSCUtil.unixToCasinocoinTimestamp(Date.now())
+      lastOpenedTimestamp: STMUtil.unixToStoxumTimestamp(Date.now())
     }
     this.dbMetadata.insert(initDBVersion);
   }
@@ -849,14 +849,14 @@ export class WalletService {
     let encryptSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
     // get all keys
     let allKeys: Array<LokiTypes.LokiKey> = this.keys.find();
-    let cscCrypto = new CSCCrypto(password);
+    let stmCrypto = new STMCrypto(password);
     allKeys.forEach( (element, index, array) => {
       if(!element.encrypted){
         // encrypt private key
-        let cryptedKey = cscCrypto.encrypt(element.privateKey);
+        let cryptedKey = stmCrypto.encrypt(element.privateKey);
         array[index].privateKey = cryptedKey;
         // encrypt secret
-        let cryptedSecret = cscCrypto.encrypt(element.secret);
+        let cryptedSecret = stmCrypto.encrypt(element.secret);
         array[index].secret = cryptedSecret;
         array[index].encrypted = true;
       }
@@ -878,12 +878,12 @@ export class WalletService {
       // get all keys
       let allKeys: Array<LokiTypes.LokiKey> = this.keys.find();
       let decryptedKeys: Array<LokiTypes.LokiKey> = [];
-      let cscCrypto = new CSCCrypto(password);
+      let stmCrypto = new STMCrypto(password);
       allKeys.forEach( (element, index, array) => {
         // decrypt key
         this.logger.debug("Decrypt["+index+"]: " + JSON.stringify(element));
-        let decodedSecret:string = cscCrypto.decrypt(element.secret);
-        let decodedKeypair = cscKeyAPI.deriveKeypair(decodedSecret);
+        let decodedSecret:string = stmCrypto.decrypt(element.secret);
+        let decodedKeypair = stmKeyAPI.deriveKeypair(decodedSecret);
         // check if public key is the same
         if(decodedKeypair.publicKey == element.publicKey){
           // save decrypted values onto object
@@ -904,9 +904,9 @@ export class WalletService {
   }
 
   getDecryptPrivateKey(password: string, walletKey: LokiTypes.LokiKey): string {
-    let cscCrypto = new CSCCrypto(password);
-    let decodedSecret:string = cscCrypto.decrypt(walletKey.secret);
-    let decodedKeypair = cscKeyAPI.deriveKeypair(decodedSecret);
+    let stmCrypto = new STMCrypto(password);
+    let decodedSecret:string = stmCrypto.decrypt(walletKey.secret);
+    let decodedKeypair = stmKeyAPI.deriveKeypair(decodedSecret);
     if(decodedKeypair.publicKey == walletKey.publicKey){
       // password was correct, return decoded private key
       return decodedKeypair.privateKey;
@@ -916,9 +916,9 @@ export class WalletService {
   }
 
   getDecryptSecret(password: string, walletKey: LokiTypes.LokiKey): string {
-    let cscCrypto = new CSCCrypto(password);
-    let decodedSecret:string = cscCrypto.decrypt(walletKey.secret);
-    let decodedKeypair = cscKeyAPI.deriveKeypair(decodedSecret);
+    let stmCrypto = new STMCrypto(password);
+    let decodedSecret:string = stmCrypto.decrypt(walletKey.secret);
+    let decodedKeypair = stmKeyAPI.deriveKeypair(decodedSecret);
     if(decodedKeypair.publicKey == walletKey.publicKey){
       // password was correct, return decoded private key
       return decodedSecret;
@@ -950,10 +950,10 @@ export class WalletService {
       secret: "", 
       encrypted: false
     };
-    let keypair = cscKeyAPI.deriveKeypair(keySeed);
+    let keypair = stmKeyAPI.deriveKeypair(keySeed);
     newKeyPair.privateKey = keypair.privateKey;
     newKeyPair.publicKey = keypair.publicKey;
-    newKeyPair.accountID = cscKeyAPI.deriveAddress(keypair.publicKey);
+    newKeyPair.accountID = stmKeyAPI.deriveAddress(keypair.publicKey);
     newKeyPair.secret = keySeed;
     // save the new private key
     this.addKey(newKeyPair);
