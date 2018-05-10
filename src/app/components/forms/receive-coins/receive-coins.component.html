@@ -1,104 +1,121 @@
 <div class="ui-widget ui-g form-container">
-    <p class="form-text-header">Receive Coins</p>
-    <div class="ui-g-12">
-        <button pButton type="button" (click)="showCreateAccount()" icon="icon icon-text" iconPos="left" label="Create New Account"></button>
-    </div>
-    <div class="ui-g-12">
-        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-dataTable [value]="accounts" [immutable]="false" scrollable="true" scrollHeight="65vh"
-                        [contextMenu]="cm" [(selection)]="selectedReceiveRow" editable="true" (onEditComplete)="onLabelEditComplete($event)"
-                        (onEditCancel)="onLabelEditCancel($event)" (onContextMenuSelect)="showReceiveContextMenu($event)">
-            <p-column field="accountID" header="Account" [style]="{'width':'200px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <span class="text-small">
-                        <p class="item-p"><span class="item-label">account: </span><span class="item-value"> {{ data.accountID }}</span></p>
-                        <p class="item-p"><span class="item-label">balance: </span><span class="item-value"> {{data.balance | stmAmount : true : true}}</span></p>
-                    </span>
-                </ng-template>
-            </p-column>
-            <p-column field="label" header="Label" [style]="{'width':'160px'}" editable="true" class="item-value"></p-column>
-            <!--
+  <p class="form-text-header">Receive Coins</p>
+  <div class="ui-g-12">
+    <button pButton type="button" (click)="showCreateAccount()" icon="icon icon-text" iconPos="left" label="Create New Account"></button>
+  </div>
+  <div class="ui-g-12">
+    <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+    <p-dataTable [value]="accounts" [immutable]="false" scrollable="true" scrollHeight="65vh" [contextMenu]="cm" [(selection)]="selectedReceiveRow"
+      editable="true" (onEditComplete)="onLabelEditComplete($event)" (onEditCancel)="onLabelEditCancel($event)" (onContextMenuSelect)="showReceiveContextMenu($event)">
+      <p-column field="accountID" header="Account" [style]="{'width':'200px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <span class="text-small">
+            <p class="item-p">
+              <span class="item-label">account: </span>
+              <span class="item-value"> {{ data.accountID }}</span>
+            </p>
+            <p class="item-p">
+              <span class="item-label">balance: </span>
+              <span class="item-value"> {{data.balance | stmAmount : true : true}}</span>
+            </p>
+          </span>
+        </ng-template>
+      </p-column>
+      <p-column field="label" header="Label" [style]="{'width':'160px'}" editable="true" class="item-value"></p-column>
+      <!--
             <p-column field="balance" header="Balance" [style]="{'width':'90px'}">
                 <ng-template let-data="rowData" pTemplate="body">
                     <span>{{data.balance | stmAmount}}</span>
                 </ng-template>
             </p-column>
             -->
-            <!--
+      <!--
             <p-column field="meta.created" header="Created" [style]="{'width':'80px'}">
                 <ng-template let-data="rowData" pTemplate="body">
                     <span>{{data.meta.created | date : 'yyyy-MM-dd HH:mm:ss'}}</span>
                 </ng-template>
             </p-column>
         -->
-            <p-column field="activated" header="Activated" [style]="{'width':'50px','text-align':'center'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <i [ngClass]="getActivatedIconClasses(data.activated)"></i>
-                </ng-template>
-            </p-column>
-        </p-dataTable>
-    </div>
+      <p-column field="activated" header="Activated" [style]="{'width':'50px','text-align':'center'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <i [ngClass]="getActivatedIconClasses(data.activated)"></i>
+        </ng-template>
+      </p-column>
+    </p-dataTable>
+  </div>
 </div>
-<p-dialog [(visible)]="showCreateAccountDialog" [width]="450" [height]="300" [closable]="true" 
-    [modal]="true" appendTo="body">
-    <p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Create new account</span></p-header>
-    <div class="ui-g ui-fluid">
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <p>Enter a label for the new account and your wallet password.</p>
-        </div>
-        <div class="ui-g-1"></div>
+<p-dialog [(visible)]="showCreateAccountDialog" [width]="450" [height]="300" [closable]="true" [modal]="true" appendTo="body">
+  <p-header>
+    <span>
+      <i class="icon stm-dialog-icon icon-globe"></i>Create new account</span>
+  </p-header>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+      <p>Enter a label for the new account and your wallet password.</p>
     </div>
-    <div class="ui-g ui-fluid">
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <div class="ui-inputgroup">
-                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-book"></i></span>
-                <input type="text" pInputText placeholder="Account Label" [(ngModel)]="accountLabel" style="width: 100%; padding-left: 5px;">         
-            </div>
-        </div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <div class="ui-inputgroup">
-                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
-                <input type="password" pInputText placeholder="Wallet Password" [(ngModel)]="walletPassword" 
-                       (keyup.enter)="doCreateNewAccount()" style="width: 100%; padding-left: 5px;">
-            </div>
-        </div>
-        <div class="ui-g-1"></div>
+    <div class="ui-g-1"></div>
+  </div>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+      <div class="ui-inputgroup">
+        <span class="ui-inputgroup-addon" style="box-sizing: content-box;">
+          <i class="icon icon-book"></i>
+        </span>
+        <input type="text" pInputText placeholder="Account Label" [(ngModel)]="accountLabel" style="width: 100%; padding-left: 5px;">
+      </div>
     </div>
-    <div style="text-align: right;">
-        <button pButton type="button" (click)="doCreateNewAccount()" icon="icon icon-save" iconPos="right" label="Create" 
-                style="width: 115px;"></button>
+    <div class="ui-g-1"></div>
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+      <div class="ui-inputgroup">
+        <span class="ui-inputgroup-addon" style="box-sizing: content-box;">
+          <i class="icon icon-key"></i>
+        </span>
+        <input type="password" pInputText placeholder="Wallet Password" [(ngModel)]="walletPassword" (keyup.enter)="doCreateNewAccount()"
+          style="width: 100%; padding-left: 5px;">
+      </div>
     </div>
-    <p-footer *ngIf="showDialogFooter" class="footer-error">
-        <p>{{errorMessage}}</p>
-    </p-footer>
+    <div class="ui-g-1"></div>
+  </div>
+  <div style="text-align: right;">
+    <button pButton type="button" (click)="doCreateNewAccount()" icon="icon icon-save" iconPos="right" label="Create" style="width: 115px;"></button>
+  </div>
+  <p-footer *ngIf="showDialogFooter" class="footer-error">
+    <p>{{errorMessage}}</p>
+  </p-footer>
 </p-dialog>
 
 <p-dialog [(visible)]="showReceiveQRCodeDialog" [width]="350" [height]="500" [closable]="true" [modal]="true" appendTo="body">
-    <p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Receive Stoxum</span></p-header>
-    <div style="text-align: center;">{{selectedReceiveRow?.accountID}}</div>
-    <div class="qrcode">
-        <qr-code [value]="stmReceiveURI" size="250" level="L"></qr-code>
+  <p-header>
+    <span>
+      <i class="icon stm-dialog-icon icon-globe"></i>Receive Stoxum</span>
+  </p-header>
+  <div style="text-align: center;">{{selectedReceiveRow?.accountID}}</div>
+  <div class="qrcode">
+    <qr-code [value]="stmReceiveURI" size="250" level="L"></qr-code>
+  </div>
+  <div class="qrcode">
+    <div class="ui-inputgroup">
+      <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 60px;">
+        <i class="icon icon-text"></i>
+      </span>
+      <input type="text" pInputText placeholder="Label" [(ngModel)]="label" (ngModelChange)="updateQRCode()">
     </div>
-    <div class="qrcode">
-        <div class="ui-inputgroup">
-            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 60px;"><i class="icon icon-text"></i></span>
-            <input type="text" pInputText placeholder="Label" [(ngModel)]="label" (ngModelChange)="updateQRCode()">         
-        </div>
+  </div>
+  <div class="qrcode">
+    <div class="ui-inputgroup">
+      <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 60px;">
+        <i class="icon icon-tag"></i>
+      </span>
+      <input type="number" placeholder="Destination Tag" [(ngModel)]="destinationTag" min="1" step="1" (ngModelChange)="updateQRCode()">
     </div>
-    <div class="qrcode">
-        <div class="ui-inputgroup">
-            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 60px;"><i class="icon icon-tag"></i></span>
-            <input type="number" placeholder="Destination Tag" [(ngModel)]="destinationTag" min="1" step="1" (ngModelChange)="updateQRCode()">         
-        </div>
+  </div>
+  <div class="qrcode">
+    <div class="ui-inputgroup">
+      <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 60px;">Amount</span>
+      <input type="text" pInputText placeholder="Amount" [(ngModel)]="sendAmount" (ngModelChange)="updateQRCode()">
     </div>
-    <div class="qrcode">
-        <div class="ui-inputgroup">
-            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 60px;">Amount</span>
-            <input type="text" pInputText placeholder="Amount" [(ngModel)]="sendAmount" (ngModelChange)="updateQRCode()">
-        </div>
-    </div>
+  </div>
 </p-dialog>

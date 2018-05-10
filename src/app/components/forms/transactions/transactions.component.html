@@ -1,81 +1,103 @@
 <div class="ui-g form-container">
-    <p class="form-text-header">Transactions</p>
-    <div class="ui-g-12">
-        <div class="ui-inputgroup">
-            <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-id"></i></span>
-            <p-dropdown [style]="{'width':'100%'}" [options]="accounts" [(ngModel)]="selectedAccount" 
-                        placeholder="Select Account to filter ..." (onChange)="accountSelected($event)" 
-                        autofocus #accountDropdown></p-dropdown>
-        </div>
+  <p class="form-text-header">Transactions</p>
+  <div class="ui-g-12">
+    <div class="ui-inputgroup">
+      <span class="ui-inputgroup-addon" style="box-sizing: content-box;">
+        <i class="icon icon-id"></i>
+      </span>
+      <p-dropdown [style]="{'width':'100%'}" [options]="accounts" [(ngModel)]="selectedAccount" placeholder="Select Account to filter ..."
+        (onChange)="accountSelected($event)" autofocus #accountDropdown></p-dropdown>
     </div>
-    <div class="ui-g-12">
-        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-dataTable [value]="lazyTransactions" scrollable="true" [immutable]="false" scrollHeight="55vh" [contextMenu]="cm" selectionMode="single"
-            responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" loadingIcon="fa-spinner color_red"
-            [rows]="10" [virtualScroll]="true" [lazy]="true" [totalRecords]="totalTXRecords" (onLazyLoad)="loadTXLazy($event)" #dtTX>
-            <p-column [style]="{'width':'17px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <i [ngClass]="getDirectionIconClasses(data)"></i>
-                </ng-template>
-            </p-column>
-            <p-column field="timestamp" [style]="{'width':'72px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <span class="text-large">{{data.timestamp | stmDate : 'dd'}}</span>
-                    <span class="text-small-bottom">{{data.timestamp | stmDate : 'MMM' | uppercase}}</span>
-                    <span class="text-large">{{data.timestamp | stmDate : 'HH'}}</span>
-                    <span class="text-small-top" >{{data.timestamp | stmDate : ':mm:ss'}}</span>
-                </ng-template>
-            </p-column>
-            <p-column [style]="{'width':'172px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <span class="text-small">
-                        <p class="item-p"><span class="item-label">from: </span><span class="item-value"> {{ data.accountID }}</span></p>
-                        <p class="item-p"><span class="item-label">to: </span><span class="item-value"> {{ data.destination }}</span></p>
-                        <p class="item-p" *ngIf="getDescription(data) != null"><span class="item-label">message: </span><span class="item-value"> {{ getDescription(data) }}</span></p>
-                        <p class="item-p" *ngIf="data.destinationTag"><span class="item-label">tag: </span><span class="item-value"> {{ data.destinationTag }}</span></p>
-                        <p class="item-p" *ngIf="data.invoiceID"><span class="item-label">invoice: </span><span class="item-value"> {{ data.invoiceID }}</span></p>
-                    </span>
-                </ng-template>
-            </p-column>
-            <p-column field="validated" [style]="{'width':'50px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <div [matTooltip]="getStatusTooltipText(data)">
-                        <p class="item-p"><span class="item-label">status: </span><i [ngClass]="getStatusIconClasses(data)"></i></p>
-                        <p class="item-p"><span class="item-label">ledger: </span><span class="item-value"> {{ data.inLedger }}</span></p>
-                    </div>
-                </ng-template>
-            </p-column>
-            <p-column field="amount" [style]="{'width':'75px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <span class="text-large" #amountColText>{{ getTXTextColor(amountColText,data) }}{{data.amount | stmAmount : false : true}}</span>
-                </ng-template>
-            </p-column>
-            <ng-template pTemplate="emptymessage">
-                <p>There are no transactions in the wallet.</p>
-            </ng-template>
-        </p-dataTable>
-    </div>
-    <div class="ui-g-12">
-        <button pButton type="button" (click)="doShowLedgers()" icon="icon icon-list-numbered" iconPos="left" label="Show Ledgers"></button>
-        <button pButton type="button" (click)="doShowExchanges()" icon="icon icon-exchange" iconPos="left" label="Show Exchanges"></button>
-    </div>
-</div>
-<p-dialog class="dialog-header" [(visible)]="showLedgerDialog" [width]="500" [height]="425" 
-    [closable]="true" [modal]="true" appendTo="body">
-    <p-header>
-        <i class="icon stm-dialog-icon icon-chip"></i>
-        Ledger Information
-    </p-header>
-    <p-dataTable [value]="ledgers" [immutable]="false" scrollable="true" scrollHeight="325px">
-        <p-column field="ledger_index" header="Ledger" [style]="{'width':'75px'}"></p-column>
-        <p-column field="ledger_time" header="Time" [style]="{'width':'125px'}">
-            <ng-template let-col let-ledger="rowData" pTemplate="body">
-                <span>{{convertCscTimestamp(ledger[col.field]) | date : 'yyyy-MM-dd HH:mm:ss'}}</span>
-            </ng-template>
-        </p-column>
-        <p-column field="txn_count" header="TX" [style]="{'width':'30px'}"></p-column>
-        <ng-template pTemplate="emptymessage">
-            <p>No Ledgers download yet.</p>
+  </div>
+  <div class="ui-g-12">
+    <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+    <p-dataTable [value]="lazyTransactions" scrollable="true" [immutable]="false" scrollHeight="55vh" [contextMenu]="cm" selectionMode="single"
+      responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" loadingIcon="fa-spinner color_red"
+      [rows]="10" [virtualScroll]="true" [lazy]="true" [totalRecords]="totalTXRecords" (onLazyLoad)="loadTXLazy($event)" #dtTX>
+      <p-column [style]="{'width':'17px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <i [ngClass]="getDirectionIconClasses(data)"></i>
         </ng-template>
+      </p-column>
+      <p-column field="timestamp" [style]="{'width':'72px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <span class="text-large">{{data.timestamp | stmDate : 'dd'}}</span>
+          <span class="text-small-bottom">{{data.timestamp | stmDate : 'MMM' | uppercase}}</span>
+          <span class="text-large">{{data.timestamp | stmDate : 'HH'}}</span>
+          <span class="text-small-top">{{data.timestamp | stmDate : ':mm:ss'}}</span>
+        </ng-template>
+      </p-column>
+      <p-column [style]="{'width':'172px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <span class="text-small">
+            <p class="item-p">
+              <span class="item-label">from: </span>
+              <span class="item-value"> {{ data.accountID }}</span>
+            </p>
+            <p class="item-p">
+              <span class="item-label">to: </span>
+              <span class="item-value"> {{ data.destination }}</span>
+            </p>
+            <p class="item-p" *ngIf="getDescription(data) != null">
+              <span class="item-label">message: </span>
+              <span class="item-value"> {{ getDescription(data) }}</span>
+            </p>
+            <p class="item-p" *ngIf="data.destinationTag">
+              <span class="item-label">tag: </span>
+              <span class="item-value"> {{ data.destinationTag }}</span>
+            </p>
+            <p class="item-p" *ngIf="data.invoiceID">
+              <span class="item-label">invoice: </span>
+              <span class="item-value"> {{ data.invoiceID }}</span>
+            </p>
+          </span>
+        </ng-template>
+      </p-column>
+      <p-column field="validated" [style]="{'width':'50px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <div [matTooltip]="getStatusTooltipText(data)">
+            <p class="item-p">
+              <span class="item-label">status: </span>
+              <i [ngClass]="getStatusIconClasses(data)"></i>
+            </p>
+            <p class="item-p">
+              <span class="item-label">ledger: </span>
+              <span class="item-value"> {{ data.inLedger }}</span>
+            </p>
+          </div>
+        </ng-template>
+      </p-column>
+      <p-column field="amount" [style]="{'width':'75px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <span class="text-large" #amountColText>{{ getTXTextColor(amountColText,data) }}{{data.amount | stmAmount : false : true}}</span>
+        </ng-template>
+      </p-column>
+      <ng-template pTemplate="emptymessage">
+        <p>There are no transactions in the wallet.</p>
+      </ng-template>
     </p-dataTable>
+  </div>
+  <div class="ui-g-12">
+    <button pButton type="button" (click)="doShowLedgers()" icon="icon icon-list-numbered" iconPos="left" label="Show Ledgers"></button>
+    <button pButton type="button" (click)="doShowExchanges()" icon="icon icon-exchange" iconPos="left" label="Show Exchanges"></button>
+  </div>
+</div>
+<p-dialog class="dialog-header" [(visible)]="showLedgerDialog" [width]="500" [height]="425" [closable]="true" [modal]="true"
+  appendTo="body">
+  <p-header>
+    <i class="icon stm-dialog-icon icon-globe"></i>
+    Ledger Information
+  </p-header>
+  <p-dataTable [value]="ledgers" [immutable]="false" scrollable="true" scrollHeight="325px">
+    <p-column field="ledger_index" header="Ledger" [style]="{'width':'75px'}"></p-column>
+    <p-column field="ledger_time" header="Time" [style]="{'width':'125px'}">
+      <ng-template let-col let-ledger="rowData" pTemplate="body">
+        <span>{{convertCscTimestamp(ledger[col.field]) | date : 'yyyy-MM-dd HH:mm:ss'}}</span>
+      </ng-template>
+    </p-column>
+    <p-column field="txn_count" header="TX" [style]="{'width':'30px'}"></p-column>
+    <ng-template pTemplate="emptymessage">
+      <p>No Ledgers download yet.</p>
+    </ng-template>
+  </p-dataTable>
 </p-dialog>

@@ -1,62 +1,65 @@
 <div class="ui-widget ui-g form-container">
-    <p class="form-text-header">Address book</p>
-    <div class="ui-g-12">
-        <button pButton type="button" (click)="showCreateAddress()" icon="icon icon-text" iconPos="left" 
-                label="Create New Address"></button>
-    </div>
-    <div class="ui-g-12">
-        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-dataTable [value]="addresses" [immutable]="false" scrollable="true" scrollHeight="60vh"
-                        [contextMenu]="cm" (onRowClick)="onAddressRowClick($event)" (onContextMenuSelect)="onAddressContextMenu($event)"
-                        [(selection)]="selectedAddressRow" editable="true" (onEditComplete)="onAddressEditComplete($event)"
-                        (onEditCancel)="onAddressEditCancel($event)">
-            <p-column field="accountID" header="Account" [style]="{'width':'175px'}"></p-column>
-            <p-column field="label" header="Label" [style]="{'width':'145px'}" editable="true"></p-column>
-            <p-column field="meta.created" header="Created" [style]="{'width':'90px'}">
-                <ng-template let-data="rowData" pTemplate="body">
-                    <span>{{data.meta.created | date : 'yyyy-MM-dd HH:mm:ss'}}</span>
-                </ng-template>
-            </p-column>
-            <ng-template pTemplate="emptymessage">
-                <p>No addresses stored in the wallet.</p>
-            </ng-template>
-        </p-dataTable>
-    </div>
+  <p class="form-text-header">Address book</p>
+  <div class="ui-g-12">
+    <button pButton type="button" (click)="showCreateAddress()" icon="icon icon-text" iconPos="left" label="Create New Address"></button>
+  </div>
+  <div class="ui-g-12">
+    <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+    <p-dataTable [value]="addresses" [immutable]="false" scrollable="true" scrollHeight="60vh" [contextMenu]="cm" (onRowClick)="onAddressRowClick($event)"
+      (onContextMenuSelect)="onAddressContextMenu($event)" [(selection)]="selectedAddressRow" editable="true" (onEditComplete)="onAddressEditComplete($event)"
+      (onEditCancel)="onAddressEditCancel($event)">
+      <p-column field="accountID" header="Account" [style]="{'width':'175px'}"></p-column>
+      <p-column field="label" header="Label" [style]="{'width':'145px'}" editable="true"></p-column>
+      <p-column field="meta.created" header="Created" [style]="{'width':'90px'}">
+        <ng-template let-data="rowData" pTemplate="body">
+          <span>{{data.meta.created | date : 'yyyy-MM-dd HH:mm:ss'}}</span>
+        </ng-template>
+      </p-column>
+      <ng-template pTemplate="emptymessage">
+        <p>No addresses stored in the wallet.</p>
+      </ng-template>
+    </p-dataTable>
+  </div>
 </div>
-<p-dialog [(visible)]="showCreateAddressDialog" [width]="475" [height]="300" [closable]="true" 
-    [modal]="true" appendTo="body">
-    <p-header><span><i class="icon stm-dialog-icon icon-chip"></i>Create new address book entry</span></p-header>
-    <div class="ui-g ui-fluid">
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <p>Enter a label for the new account and the account address.</p>
-        </div>
-        <div class="ui-g-1"></div>
+<p-dialog [(visible)]="showCreateAddressDialog" [width]="475" [height]="300" [closable]="true" [modal]="true" appendTo="body">
+  <p-header>
+    <span>
+      <i class="icon stm-dialog-icon icon-globe"></i>Create new address book entry</span>
+  </p-header>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+      <p>Enter a label for the new account and the account address.</p>
     </div>
-    <div class="ui-g ui-fluid">
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <div class="ui-inputgroup">
-                <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 40px;"><i class="icon icon-tag"></i></span>
-                <input type="text" pInputText placeholder="Label" [(ngModel)]="addressLabel" style="width: 100%; padding-left: 5px;">         
-            </div>
-        </div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <div class="ui-inputgroup">
-                <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 40px;"><i class="icon icon-id"></i></span>
-                <input type="text" pInputText placeholder="Address" [(ngModel)]="accountID" (ngModelChange)="onAccountIDChange($event)" 
-                        style="width: 100%; padding-left: 5px;">         
-            </div>
-        </div>
-        <div class="ui-g-1"></div>
+    <div class="ui-g-1"></div>
+  </div>
+  <div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+      <div class="ui-inputgroup">
+        <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 40px;">
+          <i class="icon icon-tag"></i>
+        </span>
+        <input type="text" pInputText placeholder="Label" [(ngModel)]="addressLabel" style="width: 100%; padding-left: 5px;">
+      </div>
     </div>
-    <div style="text-align: right;">
-    <button pButton type="button" (click)="doCreateNewAddressbookEntry()" icon="icon icon-arrow-right" iconPos="right" label="Create" 
-            style="width: 115px;" [disabled]="invalidAccountID"></button>
+    <div class="ui-g-1"></div>
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+      <div class="ui-inputgroup">
+        <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 40px;">
+          <i class="icon icon-id"></i>
+        </span>
+        <input type="text" pInputText placeholder="Address" [(ngModel)]="accountID" (ngModelChange)="onAccountIDChange($event)" style="width: 100%; padding-left: 5px;">
+      </div>
     </div>
-    <p-footer *ngIf="showDialogFooter" class="footer-error">
-        <p>{{errorMessage}}</p>
-    </p-footer>
+    <div class="ui-g-1"></div>
+  </div>
+  <div style="text-align: right;">
+    <button pButton type="button" (click)="doCreateNewAddressbookEntry()" icon="icon icon-arrow-right" iconPos="right" label="Create"
+      style="width: 115px;" [disabled]="invalidAccountID"></button>
+  </div>
+  <p-footer *ngIf="showDialogFooter" class="footer-error">
+    <p>{{errorMessage}}</p>
+  </p-footer>
 </p-dialog>
