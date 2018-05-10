@@ -103,9 +103,9 @@ export class SendCoinsComponent implements OnInit {
       if(serverState.server_state == 'full'){
         if(serverState.validated_ledger != null && serverState.validated_ledger.base_fee != null){
           this.allowSendFromCurrentConnection = true;
-          this.fees = STMUtil.dropsToCsc(serverState.validated_ledger.base_fee.toString());
+          this.fees = STMUtil.dropsToSTM(serverState.validated_ledger.base_fee.toString());
           this.minimalFee = this.fees;
-          this.accountReserve = STMUtil.dropsToCsc(serverState.validated_ledger.reserve_base.toString());
+          this.accountReserve = STMUtil.dropsToSTM(serverState.validated_ledger.reserve_base.toString());
         } else {
           this.allowSendFromCurrentConnection = false;
         }
@@ -127,7 +127,7 @@ export class SendCoinsComponent implements OnInit {
     });
     // this.stoxumService.ledgerSubject.subscribe( ledger => {
     //   this.logger.debug("### SendCoins - ledger: " + JSON.stringify(ledger));
-    //   this.fees = STMUtil.dropsToCsc(ledger.fee_base.toString());
+    //   this.fees = STMUtil.dropsToSTM(ledger.fee_base.toString());
     //   this.minimalFee = this.fees;
     //   this.logger.debug("### SendCoins - minimalFee: " + this.minimalFee);
     // });
@@ -148,7 +148,7 @@ export class SendCoinsComponent implements OnInit {
     this.accounts.push({label:'Select Account ...', value:null});
     this.walletService.getAllAccounts().forEach( element => {
       if(new Big(element.balance) > 0){
-        let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToCsc(element.balance) + "]";
+        let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToSTM(element.balance) + "]";
         this.accounts.push({label: accountLabel, value: element.accountID});
       }
     });
@@ -326,16 +326,16 @@ export class SendCoinsComponent implements OnInit {
           } else {
             amountToSend = maxToSend;
           }
-          this.amount = STMUtil.dropsToCsc(amountToSend.toString());
+          this.amount = STMUtil.dropsToSTM(amountToSend.toString());
           this.logger.debug("### Set amount to limited: " + this.amount);
         }
         // set total to send
         if(!includeReserve){
-          this.totalSend = STMUtil.dropsToCsc(
+          this.totalSend = STMUtil.dropsToSTM(
             amountToSend.plus(new Big(STMUtil.stmToDrops(this.fees)))
           );
         } else {
-          this.totalSend = STMUtil.dropsToCsc(
+          this.totalSend = STMUtil.dropsToSTM(
             amountToSend.plus(new Big(STMUtil.stmToDrops(this.fees)))
                         .plus(new Big(STMUtil.stmToDrops(this.accountReserve)))
           );
@@ -367,13 +367,13 @@ export class SendCoinsComponent implements OnInit {
   sendAllCoins(){
     this.logger.debug("### Send All coins !!");
     if(!this.includeReserve){
-      this.amount = STMUtil.dropsToCsc(
+      this.amount = STMUtil.dropsToSTM(
         new Big(this.walletService.getAccountBalance(this.selectedAccount))
         .minus(new Big(STMUtil.stmToDrops(this.fees)))
         .minus(new Big(STMUtil.stmToDrops(this.accountReserve)))
       );
     } else {
-      this.amount = STMUtil.dropsToCsc(
+      this.amount = STMUtil.dropsToSTM(
         new Big(this.walletService.getAccountBalance(this.selectedAccount))
         .minus(new Big(STMUtil.stmToDrops(this.fees)))
       );

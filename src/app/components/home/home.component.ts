@@ -664,7 +664,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   doBalanceUpdate() {
     this.walletBalance = this.walletService.getWalletBalance() ? this.walletService.getWalletBalance() : "0";
-    this.balance = STMUtil.dropsToCsc(this.walletBalance)
+    this.balance = STMUtil.dropsToSTM(this.walletBalance)
     let balanceCSC = new Big(this.balance);
     if(this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined){
       this.logger.debug("### STM Price: " + this.marketService.stmPrice + " BTC: " + this.marketService.btcPrice + " Fiat: " + this.marketService.coinMarketInfo.price_fiat);

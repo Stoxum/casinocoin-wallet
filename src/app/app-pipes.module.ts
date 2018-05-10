@@ -25,7 +25,7 @@ export class STMAmountPipe implements PipeTransform {
         if(value == null){
             return "";
         } else if(isNaN(value)){
-            let amount = STMUtil.dropsToCsc(value);
+            let amount = STMUtil.dropsToSTM(value);
             if(numberFormat != null && numberFormat){
                 amount = this.numberPipe.transform(amount, "1.2-8");
             }
@@ -34,7 +34,7 @@ export class STMAmountPipe implements PipeTransform {
             }
             return amount;
         } else {
-            let amount = STMUtil.dropsToCsc(value.toString());
+            let amount = STMUtil.dropsToSTM(value.toString());
             if(numberFormat != null && numberFormat){
                 amount = this.numberPipe.transform(amount, "1.2-8");
             }

@@ -8,15 +8,15 @@ export class STMUtil {
     static stoxumToUnixTimestamp(rpepoch: number): number {
         return (rpepoch + 0x386D4380) * 1000
     }
-    
+
     static unixToStoxumTimestamp(timestamp: number): number {
         return Math.round(timestamp / 1000) - 0x386D4380
     }
-    
+
     static stoxumTimeToISO8601(stoxumTime: number): string {
         return new Date(this.stoxumToUnixTimestamp(stoxumTime)).toISOString()
     }
-    
+
     static iso8601ToStoxumTime(iso8601: string): number {
         return this.unixToStoxumTimestamp(Date.parse(iso8601))
     }
@@ -25,14 +25,14 @@ export class STMUtil {
         return this.unixToStoxumTimestamp(Date.now());
     }
 
-    static dropsToCsc(drops: string): string {
+    static dropsToSTM(drops: string): string {
         let bigDrops = new Big(drops);
-        if(bigDrops > 0){
-            return (bigDrops).div(100000000.0).toString();
+        if(bigDrops > 0) {
+            return (bigDrops).div(1000000.0).toString();
         } else {
             return "0.00";
         }
-        
+
     }
 
     static stmToDrops(stm: string): string {
@@ -90,7 +90,7 @@ export class STMUtil {
         }
         return {
             Memo: removeUndefined({
-                MemoData: stringToHex(inputMemo.memo.memoData), 
+                MemoData: stringToHex(inputMemo.memo.memoData),
                 MemoType: stringToHex(inputMemo.memo.memoType),
                 MemoFormat: stringToHex(inputMemo.memo.memoFormat)
             })
@@ -160,7 +160,7 @@ export class STMUtil {
         for (var i=0; i<length ; ++i) {
             var char = accountID[i];
             var p = positions[char];
-    
+
             // if we encounter an invalid character, decoding fails
             if (p === undefined) {
                 return false;
@@ -173,7 +173,7 @@ export class STMUtil {
                 seen_other = true;
             }
         }
-        var hex = num.toString(16);        
+        var hex = num.toString(16);
         // num.toString(16) does not have leading 0
         if (hex.length % 2 !== 0) {
             hex = '0' + hex;

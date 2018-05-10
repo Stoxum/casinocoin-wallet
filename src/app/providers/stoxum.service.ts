@@ -255,20 +255,20 @@ export class StoxumService implements OnDestroy {
                         this.getAccountInfo(dbTX.destination);
                         this.notificationService.addMessage(
                             {title: 'Incomming STM Transaction', 
-                            body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToCsc(dbTX.amount), "1.2-8") +
+                            body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToSTM(dbTX.amount), "1.2-8") +
                                 ' coins from ' + dbTX.accountID});
                     } else if(dbTX.direction == AppConstants.KEY_WALLET_TX_OUT){
                         this.getAccountInfo(dbTX.accountID);
                         this.notificationService.addMessage(
                             {title: 'Outgoing STM Transaction', 
-                            body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(dbTX.amount), "1.2-8") +
+                            body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(dbTX.amount), "1.2-8") +
                                 ' coins to ' + dbTX.destination});
                     } else {
                         this.getAccountInfo(dbTX.destination);
                         this.getAccountInfo(dbTX.accountID);
                         this.notificationService.addMessage(
                             {title: 'Wallet Transaction', 
-                            body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(dbTX.amount), "1.2-8") +
+                            body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(dbTX.amount), "1.2-8") +
                                 ' coins to your own address ' + dbTX.destination});
                     }
                 }
@@ -448,7 +448,7 @@ export class StoxumService implements OnDestroy {
                         if(notifyUser){
                             this.notificationService.addMessage(
                                 {title: 'Incomming STM Transaction', 
-                                body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToCsc(tx.amount), "1.2-8") +
+                                body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToSTM(tx.amount), "1.2-8") +
                                     ' coins from ' + tx.accountID});
                         }
                     } else if(tx.direction == AppConstants.KEY_WALLET_TX_OUT){
@@ -456,7 +456,7 @@ export class StoxumService implements OnDestroy {
                         if(notifyUser){
                             this.notificationService.addMessage(
                                 {title: 'Outgoing STM Transaction', 
-                                body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(tx.amount), "1.2-8") +
+                                body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(tx.amount), "1.2-8") +
                                     ' coins to ' + tx.destination});
                         }
                     } else {
@@ -465,7 +465,7 @@ export class StoxumService implements OnDestroy {
                         if(notifyUser){
                             this.notificationService.addMessage(
                                 {title: 'Wallet Transaction', 
-                                body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToCsc(tx.amount), "1.2-8") +
+                                body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(tx.amount), "1.2-8") +
                                     ' coins to your own address ' + tx.destination});
                         }
                     }

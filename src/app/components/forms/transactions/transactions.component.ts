@@ -106,7 +106,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
         this.accounts.push({label:'Select Account ...', value:null});
         this.walletService.getAllAccounts().forEach( element => {
           if(new Big(element.balance) > 0){
-            let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToCsc(element.balance) + "]";
+            let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToSTM(element.balance) + "]";
             this.accounts.push({label: accountLabel, value: element.accountID});
           }
         });
@@ -161,7 +161,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit {
     this.accounts.push({label:'Select Account ...', value:null});
     this.walletService.getAllAccounts().forEach( element => {
       if(new Big(element.balance) > 0){
-        let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToCsc(element.balance) + "]";
+        let accountLabel = element.label + "(" + element.accountID.substring(0,8)+ "...) [Balance: " + STMUtil.dropsToSTM(element.balance) + "]";
         this.accounts.push({label: accountLabel, value: element.accountID});
       }
     });
