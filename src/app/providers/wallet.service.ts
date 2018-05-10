@@ -32,7 +32,7 @@ const walletSubject = new Subject<any>();
 export class WalletService {
 
   private log_tag = "WalletService";
-  
+
   private accountSubject = new Subject<any>();
 
   private walletDB;
@@ -44,7 +44,7 @@ export class WalletService {
   private keys;
   private swaps;
   private ledgers: Array<LedgerStreamMessages>;
- 
+
   public isWalletOpen: boolean = false;
   public openWalletSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
   public mnemonicSubject = new BehaviorSubject<string>("");
@@ -54,20 +54,20 @@ export class WalletService {
   public lastTx:LokiTypes.LokiTransaction = this.getWalletLastTx();
   public currentDBMetadata: LokiTypes.LokiDBMetadata;
 
-  constructor(private logger: LogService, 
+  constructor(private logger: LogService,
               private electron: ElectronService,
               private localStorageService: LocalStorageService,
               private notificationService: NotificationService) {
     this.logger.debug("### INIT WalletService ###");
    }
 
-  createWallet( walletLocation: string, 
-                walletUUID: string, 
-                walletSecret: string, 
+  createWallet( walletLocation: string,
+                walletUUID: string,
+                walletSecret: string,
                 environment:LokiTypes.LokiDBEnvironment,
                 mnemonicRecovery: string ): Observable<any> {
     // create wallet for UUID
-    this.logger.debug("### WalletService Create UUID: " + walletUUID);   
+    this.logger.debug("### WalletService Create UUID: " + walletUUID);
     function createWalletComplete(thisobject){
       this.logger.debug("### WalletService DB Created");
     }
@@ -124,14 +124,14 @@ export class WalletService {
         this.swaps = collection;
       this.isWalletOpen = true;
     });
-    
+
     let lokiFsAdapter = new lfsa();
     // let idbAdapter = new LokiIndexedAdapter('stoxum');
-    let walletDB = new loki(dbPath, 
+    let walletDB = new loki(dbPath,
       { adapter: lokiFsAdapter,
         autoloadCallback: createCollections,
-        autoload: true, 
-        autosave: true, 
+        autoload: true,
+        autosave: true,
         autosaveInterval: 5000
     });
 
@@ -148,7 +148,7 @@ export class WalletService {
     this.walletDB = walletDB;
     return createSubject.asObservable();
   }
-  
+
   openWallet(walletLocation: string, walletUUID: string, walletPassword: string): Observable<string> {
     let dbPath = path.join(walletLocation, (walletUUID + '.db'));
     this.logger.debug("### WalletService Open Wallet location: " + dbPath);
@@ -169,7 +169,7 @@ export class WalletService {
         // notify open complete
         this.currentDBMetadata = this.getDBMetadata();
         // check for DB upgrades
-        this.checkForUpgrades(walletPassword);                
+        this.checkForUpgrades(walletPassword);
         this.openWalletSubject.next(result);
         let msg: NotificationType = {severity: SeverityType.info, title:'Wallet Message', body:'Succesfully opened the wallet.'};
         this.notificationService.addMessage(msg);
@@ -207,17 +207,17 @@ export class WalletService {
           openSubject.next(AppConstants.KEY_ERRORED);
         }
       });
-  
+
       let lokiFsAdapter = new lfsa();
       // let idbAdapter = new LokiIndexedAdapter('stoxum');
-      let walletDB = new loki(dbPath, 
+      let walletDB = new loki(dbPath,
         { adapter: lokiFsAdapter,
           autoloadCallback: openCollections,
-          autoload: true, 
-          autosave: true, 
+          autoload: true,
+          autosave: true,
           autosaveInterval: 5000
       });
-  
+
       function openCollections(result){
         // check if dbMetadata exists as we added it later ....
         let dbMeta = walletDB.getCollection("dbMetadata");
@@ -240,7 +240,7 @@ export class WalletService {
     }
     return this.openWalletSubject.asObservable();
   }
-  
+
   // close the wallet
   closeWallet(){
     this.logger.debug("### WalletService - Save and Close Wallet ###");
@@ -263,7 +263,7 @@ export class WalletService {
     // publish result
     this.openWalletSubject.next(AppConstants.KEY_INIT);
   }
-  
+
   changePassword(currentWalletPassword:string, newWalletPassword: string, newWalletMnemonic: string){
     // generate wallet hash with walletUUID and new Password
     this.logger.debug("### ChangePassword - Encrypt Wallet Password");
@@ -273,7 +273,7 @@ export class WalletService {
     let availableWallets = this.localStorageService.get(AppConstants.KEY_AVAILABLE_WALLETS);
     let walletIndex = availableWallets.findIndex( item => item['walletUUID'] == this.currentDBMetadata.walletUUID);
     availableWallets[walletIndex]['hash'] = newPasswordHash;
-    this.localStorageService.set(AppConstants.KEY_AVAILABLE_WALLETS, availableWallets);   
+    this.localStorageService.set(AppConstants.KEY_AVAILABLE_WALLETS, availableWallets);
 
     // Decrypt all keys with old password and update DB
     this.logger.debug("### ChangePassword - Decrypt Wallet Keys with Old Password");
@@ -298,9 +298,9 @@ export class WalletService {
 
     // update password in LokiDBMetadata with new password and new mnemonic recovery
     this.currentDBMetadata.walletHash = newPasswordHash;
-    this.currentDBMetadata.mnemonicRecovery = newWalletMnemonic; 
+    this.currentDBMetadata.mnemonicRecovery = newWalletMnemonic;
     this.dbMetadata.update(this.currentDBMetadata);
-    
+
     //save wallet
     this.saveWallet();
   }
@@ -346,17 +346,17 @@ export class WalletService {
           openSubject.next(AppConstants.KEY_ERRORED);
         }
       });
-  
+
       let lokiFsAdapter = new lfsa();
       // let idbAdapter = new LokiIndexedAdapter('stoxum');
-      let walletDB = new loki(dbPath, 
+      let walletDB = new loki(dbPath,
         { adapter: lokiFsAdapter,
           autoloadCallback: openCollections,
-          autoload: true, 
-          autosave: true, 
+          autoload: true,
+          autosave: true,
           autosaveInterval: 5000
       });
-  
+
       function openCollections(result){
         // check if dbMetadata exists as we added it later ....
         collectionSubject.next(walletDB.getCollection("dbMetadata"));
@@ -737,7 +737,7 @@ export class WalletService {
     } else {
       return this.transactions.update(transaction);
     }
-    
+
   }
 
   getAccountTransactions(inputAccountID: string): Array<LokiTypes.LokiTransaction>{
@@ -764,8 +764,8 @@ export class WalletService {
       }
     });
     // special case for the genesis account that was initialized with 40.000.000.000 coins
-    if(inputAccountID == "cHb9CJAWyB4cj91VRWn96DkukG4bwdtyTh"){
-      totalBalance = totalBalance.plus("4000000000000000000");
+    if(inputAccountID == "xmB23jLgWpAxb2DingE2kNuduzABYU8WMy"){
+      totalBalance = totalBalance.plus("200000000000000");
     }
     return totalBalance.toString();
   }
@@ -943,11 +943,11 @@ export class WalletService {
   // }
 
   importPrivateKey(keySeed:string, password:string){
-    let newKeyPair: LokiTypes.LokiKey = { 
-      privateKey: "", 
-      publicKey: "", 
-      accountID: "", 
-      secret: "", 
+    let newKeyPair: LokiTypes.LokiKey = {
+      privateKey: "",
+      publicKey: "",
+      accountID: "",
+      secret: "",
       encrypted: false
     };
     let keypair = stmKeyAPI.deriveKeypair(keySeed);
@@ -959,9 +959,9 @@ export class WalletService {
     this.addKey(newKeyPair);
     // add new account
     let walletAccount: LokiTypes.LokiAccount = {
-      accountID: newKeyPair.accountID, 
-      balance: "0", 
-      lastSequence: 0, 
+      accountID: newKeyPair.accountID,
+      balance: "0",
+      lastSequence: 0,
       label: "Imported Private Key",
       activated: false,
       ownerCount: 0,
@@ -971,13 +971,13 @@ export class WalletService {
     this.addAccount(walletAccount);
     // encrypt the keys
     this.encryptAllKeys(password).subscribe(result => {
-      this.notificationService.addMessage( {severity: SeverityType.info, 
-                                            title: 'Private Key Import', 
+      this.notificationService.addMessage( {severity: SeverityType.info,
+                                            title: 'Private Key Import',
                                             body: 'The Private Key import is complete.'
                                            });
     });
   }
-  
+
   getWalletBalance(): string {
     let totalBalance = new Big("0");
     this.logger.debug("### WalletService getWalletBalance, isWalletOpen: " + this.isWalletOpen);

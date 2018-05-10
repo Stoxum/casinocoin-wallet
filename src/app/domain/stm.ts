@@ -34,7 +34,7 @@ export class STM {
     }
 
     createMaximalAmount(amount: Amount): Amount {
-        const maxCSCValue = '40000000000'
+        const maxCSCValue = '200000000'
         const maxIOUValue = '9999999999999999e80'
         const maxValue = amount.currency === 'STM' ? maxCSCValue : maxIOUValue
         return _.assign({}, amount, { value: maxValue })
