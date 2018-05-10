@@ -9,7 +9,7 @@ Stoxum Desktop Wallet
 Clone this repository locally :
 
 ``` bash
-git clone https://github.com/Stoxum/stoxum-wallet.git
+git clone https://github.com/Stoxum/stoxum-wallet-electron.git
 ```
 
 Install dependencies with npm :

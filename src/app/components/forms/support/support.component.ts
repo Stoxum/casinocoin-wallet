@@ -11,7 +11,7 @@ import { ElectronService } from '../../../providers/electron.service';
 export class SupportComponent implements OnInit {
 
   constructor(private logger: LogService,
-              private electronService: ElectronService) { 
+              private electronService: ElectronService) {
           this.logger.debug("### INIT Support ###");
   }
 
@@ -41,7 +41,7 @@ export class SupportComponent implements OnInit {
 
   openGithub(){
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://github.com/Stoxum/stoxum-wallet/issues");
+    this.electronService.remote.shell.openExternal("https://github.com/Stoxum/stoxum-wallet-electron/issues");
   }
 
   openContactForm(){
