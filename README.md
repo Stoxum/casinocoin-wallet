@@ -70,9 +70,3 @@ Notice that all NodeJS v7 native libs are already added in this sample. Feel fre
 
 Maybe you want to execute the application in the browser (WITHOUT HOT RELOAD ACTUALLY...) ? You can do it with `npm run start:web`.  
 Note that you can't use Electron or NodeJS native libraries in this case. Please check `providers/electron.service.ts` to watch how conditional import of electron/Native libraries is done.
-
-# Contributors 
-
-[<img alt="Andre Jochems" src="https://avatars1.githubusercontent.com/u/584523?v=4&s=460" width="117">](https://github.com/ajochems) |
-:---:
-|[Andre Jochems](https://github.com/ajochems)|
