@@ -159,7 +159,7 @@ export class PaperwalletComponent implements OnInit {
             <br><br>
             <h2>About</h2>
             <p>A Stoxum Paper Wallet is an offline mechanism for storing Stoxum. The process involves printing the public and private keys onto paper.</p>
-            <p><strong>Disclaimer:</strong> Use of the Stoxum Paper Wallet Generator is offered solely to persons who are at least 18 years old. Your use of the Paper Wallet Generator is solely at your own risk, and you hereby agree to release Stoxum and its affiliates from any and all claims arising out of or in connection with your use of the Paper Wallet Generator or your Paper Wallet, including risk of loss of the Paper Wallet key(s) and any other damages whatsoever.</p>
+            <p><strong>Disclaimer:</strong> Your use of the Paper Wallet Generator is solely at your own risk, and you hereby agree to release Stoxum and its affiliates from any and all claims arising out of or in connection with your use of the Paper Wallet Generator or your Paper Wallet, including risk of loss of the Paper Wallet key(s) and any other damages whatsoever.</p>
             ${printContents}
             <div>
                 <h2>Instructions</h2>
