@@ -2,24 +2,24 @@
 
 $base-height: 60px;
 
-.container { 
-	display:table; 
-	width:100%; 
-	height:100%;  
+.container {
+  display: table;
+  width: 100%;
+  height: 100%;
 }
 
 ::ng-deep .home-sidenav {
-	display:table-row;
+  display: table-row;
 }
 
 ::ng-deep .home-sidenav-container {
-	height: 100%;
+  height: 100%;
 }
 
 ::ng-deep p-toolbar .ui-widget-header {
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 300;
-  font-size: 0.90em;
+  font-size: 0.9em;
   height: $statusBarHeight;
   background: $stoxumBlack;
 }
@@ -34,23 +34,24 @@ $base-height: 60px;
 
 ::ng-deep #main_menu .ui-menu {
   background: #000000;
-  color: #FFFFFF;
+  color: #000;
 }
 
 ::ng-deep #main_menu .ui-menu .ui-menu-list .ui-menuitem {
-    padding-top: 25px;
-    padding-bottom: 25px;
+  padding-top: 25px;
+  padding-bottom: 25px;
 }
 
 .mat-list-item {
-  color: #FFFFFF;
+  color: #000;
 }
 
 .sidenav-height {
   height: 100%;
 }
 
-.btn.focus, .btn:focus {
+.btn.focus,
+.btn:focus {
   outline: 0;
   box-shadow: 0 0 0 2px $stoxumRedLighter;
 }
@@ -60,7 +61,7 @@ $base-height: 60px;
 }
 
 .active_text_color {
-  color: #FFFFFF;
+  color: #000;
   font-size: smaller;
 }
 
@@ -70,7 +71,8 @@ $base-height: 60px;
 }
 
 :host input {
-  width: 100%; padding-left: 5px;
+  width: 100%;
+  padding-left: 5px;
 }
 
 .connected-color {
@@ -82,28 +84,29 @@ $base-height: 60px;
 }
 
 .amount-label {
-  color: #fff;
+  color: #000;
   font-size: 1em;
 }
 
 .amount-value {
-  color: #fff;
-  font-size: 1em;
+  color: $stoxumGreen;
+  font-size: 1.2em;
   font-weight: 700;
 }
 
 .tx-value {
-  color: #fff;
+  color: #000;
   font-weight: 700;
 }
 
 .app-nav {
   width: 240px;
   height: 100%;
-  background: $stoxumRed;
-  background-image: url('../../../assets/brand/navbar-bg.jpg');
-  background-repeat: no-repeat;
-  background-position: bottom;
+  background: $stoxumWhite;
+  background-image: url("../../../assets/brand/bg-min.png");
+  background-position: center;
+  background-size: 160%;
+  border-right: 3px solid $stoxumGreen;
 }
 
 .stm-logo {
@@ -123,7 +126,7 @@ $base-height: 60px;
 
 .menu-text {
   padding-top: 14px;
-  font-size: 1.10em;
+  font-size: 1.1em;
 }
 
 .menu-balance {
@@ -141,7 +144,7 @@ $base-height: 60px;
 */
 
 .active_menu_item {
-  background-image: url('../../../assets/menu-rectangle.png');
+  background-image: url("../../../assets/menu-rectangle.png");
   background-repeat: no-repeat;
   background-position: right;
   position: sticky;
@@ -176,7 +179,7 @@ $base-height: 60px;
   position: absolute;
   bottom: 10px;
   text-align: center;
-  color: #FFFFFF;
+  color: #000;
   font-size: smaller;
   width: 100%;
   user-select: none;

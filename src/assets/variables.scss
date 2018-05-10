@@ -1,4 +1,4 @@
-$fontFamily:  "Roboto";
+$fontFamily: "Roboto";
 $fontSize: 0.97em;
 $borderRadius: 2px;
 $disabledOpacity: 0.35;
@@ -7,8 +7,11 @@ $statusBarHeight: 40px;
 $stoxumRed: #bf0a0a;
 $stoxumRedLighter: lighten($stoxumRed, 10%);
 $stoxumRedDarker: darken($stoxumRed, 10%);
-$stoxumGreen: #4caf50;
+$stoxumGreen: #77ba6e;
+$stoxumGreenDarker: darken($stoxumGreen, 10%);
+$stoxumGreenLighter: lighten($stoxumGreen, 10%);
 $stoxumBlue: #114490;
 $stoxumGray: #f2f2f2;
 $stoxumOrange: #da860a;
 $stoxumBlack: #0f0f0f;
+$stoxumWhite: #ffffff;

@@ -25,7 +25,8 @@
 // @import "./app/components/forms/receive-coins/receive-coins.component";
 // @import "./app/components/forms/send-coins/send-coins.component";
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 
@@ -53,7 +54,7 @@ html, body {
 }
 
 .loader-color {
-  color: $stoxumRed;
+  color: $stoxumGreen;
 }
 
 .loader-text {
@@ -61,18 +62,18 @@ html, body {
   font-weight: bold;
   margin-bottom: 15px;
   padding-left: 10px;
-  color: $stoxumRed;
+  color: $stoxumGreen;
 }
 
 i.stm-dialog-icon {
   padding-right: 10px;
-  color: $stoxumRed;
+  color: $stoxumGreen;
   font-size: 1.25em;
 }
 
-.form-container { 
-	display:table; 
-	width:100%; 
+.form-container {
+  display: table;
+  width: 100%;
   height: calc(100% - #{$statusBarHeight});
   padding-top: 25px;
   padding-bottom: 5px;
@@ -82,7 +83,7 @@ i.stm-dialog-icon {
   -moz-box-shadow: 20px 0px 25px 20px #000;
   box-shadow: 20px 0px 25px 20px #000;
   background-color: #ffffff;
-  background-image: url('./assets/brand/main-bg.jpg');
+  background-image: url("./assets/brand/main-bg.jpg");
   background-repeat: no-repeat;
   background-position: right bottom;
 }
@@ -90,16 +91,19 @@ i.stm-dialog-icon {
 .form-text-header {
   font-size: 1.5em;
   font-weight: bold;
-  color: $stoxumRed;
+  color: $stoxumGreen;
 }
 
 :not(input):not(textarea),
 :not(input):not(textarea)::after,
 :not(input):not(textarea)::before {
-    -webkit-user-select: none;
-    user-select: none;
-    cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
 }
-input, button, textarea, :focus {
-    outline: none; // You should add some other style for :focus to help UX/a11y
+input,
+button,
+textarea,
+:focus {
+  outline: none; // You should add some other style for :focus to help UX/a11y
 }
