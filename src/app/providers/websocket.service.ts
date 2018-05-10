@@ -18,16 +18,15 @@ export class WebsocketService {
         { server_id: 't2.stoxum.com', server_url: 'ws://t2.stoxum.com:31231/', response_time: -1 }
     ];
     private PROD_SERVERS: Array<ServerDefinition> = [
-        { server_id: 's1.stoxum.com', server_url: 'wss://s1.stoxum.com:51231/', response_time: -1 },
-        { server_id: 's2.stoxum.com', server_url: 'wss://s2.stoxum.com:51231/', response_time: -1 },
-        { server_id: 's3.stoxum.com', server_url: 'wss://s3.stoxum.com:51231/', response_time: -1 },
-        { server_id: 's4.stoxum.com', server_url: 'wss://s4.stoxum.com:51231/', response_time: -1 }
+        { server_id: 'h1.stoxum.com', server_url: 'wss://h1.stoxum.com:51231/', response_time: -1 },
+        { server_id: 'h2.stoxum.com', server_url: 'wss://h2.stoxum.com:51231/', response_time: -1 },
+        { server_id: 'h3.stoxum.com', server_url: 'wss://h3.stoxum.com:51231/', response_time: -1 }
     ];
 
     private currentServerFound: boolean = false;
     private productionConnection: boolean = true;
     public currentServer: ServerDefinition;
-    private socketSubject: Subject<MessageEvent>;    
+    private socketSubject: Subject<MessageEvent>;
     private ws : any;
     public sendingCommands = new QueueingSubject<string>();
     public websocketConnection: Connection;
@@ -46,7 +45,7 @@ export class WebsocketService {
 
     private input = new QueueingSubject<string>();
 
-  constructor( private logger:LogService, 
+  constructor( private logger:LogService,
                private localStorageService: LocalStorageService,
                private sessionStorageService: SessionStorageService ) {
     logger.debug("### INIT WebsocketService ###");
@@ -134,11 +133,11 @@ export class WebsocketService {
         // we found a faster server than before
         this.logger.debug("### findBestServer - we found a faster server: " + JSON.stringify(value));
         // IGNORE FOR NOW ....
-        
+
         // this.currentServer = value;
         // this.currentServer.response_time = responseTime;
         // findCompleteSubject.next(true);
-        
+
         // indicate server find complete
         // if(!this.isServerFindComplete) {
         //   this.isServerFindComplete = true;
@@ -168,7 +167,7 @@ export class WebsocketService {
           messagesSubscription.unsubscribe();
         }
       }
-      
+
     }, (error) => {
       this.logger.debug('### findBestServer - id: ' + value.server_id + ', error: ' + ', response time: ' + (Date.now() - request_time));
       this.serverResponses = this.serverResponses + 1;
@@ -221,7 +220,7 @@ export class WebsocketService {
       this.productionConnection = true;
       this.logger.debug("### PROD_SERVERS: " + JSON.stringify(this.PROD_SERVERS));
       this.PROD_SERVERS.forEach( (value, index, arr) => {
-        this.executeServerFind(value, findCompleteSubject);        
+        this.executeServerFind(value, findCompleteSubject);
       });
     }
     return findCompleteSubject.asObservable();
