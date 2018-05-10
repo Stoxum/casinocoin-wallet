@@ -34,6 +34,16 @@ export class SupportComponent implements OnInit {
     this.electronService.remote.shell.openExternal("http://stoxum.chat/");
   }
 
+  openTelegram(){
+    event.preventDefault();
+    this.electronService.remote.shell.openExternal("http://t.me/stoxum");
+  }
+
+  openLinkedin(){
+    event.preventDefault();
+    this.electronService.remote.shell.openExternal("https://www.linkedin.com/company/stoxum/");
+  }
+
   openWebsite(){
     event.preventDefault();
     this.electronService.remote.shell.openExternal("https://stoxum.org");
@@ -64,8 +74,13 @@ export class SupportComponent implements OnInit {
     this.electronService.remote.shell.openExternal("https://twitter.com/Stoxum");
   }
 
+  openMedium(){
+    event.preventDefault();
+    this.electronService.remote.shell.openExternal("https://twitter.com/Stoxum");
+  }
+
   openBitcoinTalk() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://bitcointalk.org/index.php?topic=3262543.0");
+    this.electronService.remote.shell.openExternal("https://bitcointalk.org/index.php?topic=3318743");
   }
 }
