@@ -1,11 +1,13 @@
-import { app, BrowserWindow, screen, 
-         autoUpdater, ipcMain, dialog, 
-         Menu, MenuItem, powerMonitor } from 'electron';
+import {
+  app, BrowserWindow, screen,
+  autoUpdater, ipcMain, dialog,
+  Menu, MenuItem, powerMonitor
+} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 
-// this is required to check if the app is running in development mode. 
+// this is required to check if the app is running in development mode.
 import * as isDev from 'electron-is-dev';
 import * as notifier from 'electron-notification-desktop';
 
@@ -14,7 +16,7 @@ const args = process.argv.slice(1);
 serve = args.some(val => val === '--serve');
 const version = app.getVersion();
 const platform = os.platform() + '_' + os.arch();
-const globalTS:any = global;
+const globalTS: any = global;
 globalTS.vars = {};
 
 // set app id
@@ -28,8 +30,8 @@ globalTS.vars.exitFromLogin = false;
 
 // define auto update url
 let updaterFeedURL = 'https://download.stoxum.org/update/' + platform + '/' + version;
-if(version.indexOf("beta") !== -1){
-	updaterFeedURL = updaterFeedURL + '/' + 'beta';
+if (version.indexOf("beta") !== -1) {
+  updaterFeedURL = updaterFeedURL + '/' + 'beta';
 }
 console.log('Update URL: ' + updaterFeedURL);
 
@@ -40,91 +42,92 @@ if (serve) {
   });
 }
 
-/* Handling squirrel.windows events on windows 
+/* Handling squirrel.windows events on windows
 only required if you have build the windows with target squirrel. For NSIS target you don't need it. */
 if (require('electron-squirrel-startup')) {
   showExitPrompt = false;
   savedBeforeQuit = true;
   globalTS.vars.exitFromRenderer = true;
   globalTS.vars.exitFromLogin = true;
-	app.quit();
+  app.quit();
 }
 
 // Funtion to check the current OS. As of now there is no proper method to add auto-updates to linux platform.
 function isWindowsOrmacOS() {
-	return process.platform === 'darwin' || process.platform === 'win32';
+  return process.platform === 'darwin' || process.platform === 'win32';
 }
 
 function appUpdater() {
-	autoUpdater.setFeedURL(updaterFeedURL);
+  autoUpdater.setFeedURL(updaterFeedURL);
 	/* Log whats happening
 	TODO send autoUpdater events to renderer so that we could console log it in developer tools
 	You could alsoe use nslog or other logging to see what's happening */
-	autoUpdater.on('error', err => console.log(err));
-	autoUpdater.on('checking-for-update', () => console.log('checking-for-update'));
-	autoUpdater.on('update-available', () => console.log('update-available'));
-	autoUpdater.on('update-not-available', () => console.log('update-not-available'));
+  autoUpdater.on('error', err => console.log(err));
+  autoUpdater.on('checking-for-update', () => console.log('checking-for-update'));
+  autoUpdater.on('update-available', () => console.log('update-available'));
+  autoUpdater.on('update-not-available', () => console.log('update-not-available'));
 
-	// Ask the user if update is available
-	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-		let message = app.getName() + ' ' + releaseName + ' is now available. It will be installed the next time you restart the application.';
-		if (releaseNotes) {
-			const splitNotes = releaseNotes.split(/[^\r]\n/);
-			message += '\n\nRelease notes:\n';
-			splitNotes.forEach(notes => {
-				message += notes + '\n\n';
-			});
-		}
-		// Ask user to update the app
-		dialog.showMessageBox({
-			type: 'question',
-			buttons: ['Install and Relaunch', 'Later'],
-			defaultId: 0,
-			message: 'A new version of ' + app.getName() + ' has been downloaded',
-			detail: message
-		}, response => {
-			if (response === 0) {
+  // Ask the user if update is available
+  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    let message = app.getName() + ' ' + releaseName + ' is now available. It will be installed the next time you restart the application.';
+    if (releaseNotes) {
+      const splitNotes = releaseNotes.split(/[^\r]\n/);
+      message += '\n\nRelease notes:\n';
+      splitNotes.forEach(notes => {
+        message += notes + '\n\n';
+      });
+    }
+    // Ask user to update the app
+    dialog.showMessageBox({
+      type: 'question',
+      buttons: ['Install and Relaunch', 'Later'],
+      defaultId: 0,
+      message: 'A new version of ' + app.getName() + ' has been downloaded',
+      detail: message
+    }, response => {
+      if (response === 0) {
         showExitPrompt = false;
         savedBeforeQuit = true;
         globalTS.vars.exitFromRenderer = true;
         globalTS.vars.exitFromLogin = true;
-				setTimeout(() => autoUpdater.quitAndInstall(), 1);
-			}
-		});
-	});
-	// init for updates
-	autoUpdater.checkForUpdates();
+        setTimeout(() => autoUpdater.quitAndInstall(), 1);
+      }
+    });
+  });
+  // init for updates
+  autoUpdater.checkForUpdates();
 }
 
 // set the default userData directory
 const defaultCSCPath = path.join(app.getPath('home'), '.stoxum');
-if (!fs.existsSync(defaultCSCPath)){
+if (!fs.existsSync(defaultCSCPath)) {
   fs.mkdirSync(defaultCSCPath);
 }
 app.setPath('userData', defaultCSCPath);
 
-// configure loggging 
+// configure loggging
 const winston = require('winston');
-if(serve){
+if (serve) {
   globalTS.loglevel = 'debug';
 } else {
   globalTS.loglevel = 'info';
 }
 var logFolder = path.join(app.getPath("userData"), "logs");
-if (!fs.existsSync(logFolder)){
+if (!fs.existsSync(logFolder)) {
   fs.mkdirSync(logFolder);
 }
 let logFilename = new Date().toISOString().replace(/:/g, '.') + '.log';
 let logFile = path.join(logFolder, logFilename)
 
-function customFileFormatter (options) {
+function customFileFormatter(options) {
   // Return string will be passed to logger.
-  return new Date().toISOString() +' ['+ options.level.toUpperCase() +'] '+ (undefined !== options.message ? options.message : '') +
-   (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+  return new Date().toISOString() + ' [' + options.level.toUpperCase() + '] ' + (undefined !== options.message ? options.message : '') +
+    (options.meta && Object.keys(options.meta).length ? '\n\t' + JSON.stringify(options.meta) : '');
 }
 
-winston.add(winston.transports.File, 
-  { filename: logFile,
+winston.add(winston.transports.File,
+  {
+    filename: logFile,
     level: globalTS.loglevel,
     maxsize: 100000000,
     json: false,
@@ -137,7 +140,7 @@ globalTS.logger = winston;
 
 // configure backup path
 let backupFolder = path.join(app.getPath("userData"), "backup");
-if (!fs.existsSync(backupFolder)){
+if (!fs.existsSync(backupFolder)) {
   fs.mkdirSync(backupFolder);
 }
 globalTS.vars.backupPath = backupFolder;
@@ -167,7 +170,7 @@ function createWindow() {
   win.loadURL('file://' + __dirname + '/index.html');
 
   const page = win.webContents;
-  
+
   // Run the auto updater
   page.once('did-frame-finish-load', () => {
     const checkOS = isWindowsOrmacOS();
@@ -185,7 +188,7 @@ function createWindow() {
   powerMonitor.on('suspend', () => {
     winston.log("debug", "### Electron -> The system is going to sleep ###");
     // send message to save and logout wallet
-    if(win !== null){
+    if (win !== null) {
       win.webContents.send('action', 'save-wallet');
     }
   });
@@ -201,13 +204,13 @@ function createWindow() {
   });
 
   //push notification using electron-notification-desktop
-  ipcMain.on('push-notification', (event, arg) => { 
+  ipcMain.on('push-notification', (event, arg) => {
     const notification = notifier.notify(arg.title, {
       message: arg.body,
       icon: path.join(__dirname, 'assets/brand/stoxum-icon-256x256.png'),
       duration: 4
     });
-    
+
     notification.on('close', function (event) {
       notification.hide();
       event.preventDefault();
@@ -217,41 +220,52 @@ function createWindow() {
   // Emitted when the window is closed.
   win.on('close', (e) => {
     // console.log("close - showExitPrompt: " + showExitPrompt + " exitFromLogin: " + globalTS.vars.exitFromLogin + " savedBeforeQuit: " + savedBeforeQuit);
-    if(globalTS.vars.exitFromLogin && showExitPrompt){
-      // Prevent the window from closing 
-      e.preventDefault() 
+    if (globalTS.vars.exitFromLogin && showExitPrompt) {
+      // Prevent the window from closing
+      e.preventDefault()
       globalTS.vars.exitFromLogin = false;
       showExitPrompt = false;
       savedBeforeQuit = true;
       win.close();
-    } else if(!globalTS.vars.exitFromRenderer){
-      // Prevent the window from closing 
-      e.preventDefault();
-      dialog.showMessageBox({
-          type: 'info',
-          buttons: ['Ok'],
-          title: 'Closing the wallet',
-          message: 'Please close the wallet from the Tools -> Quit menu.'
-      });
+
+    } else if (!globalTS.vars.exitFromRenderer) {
+
+      if (showExitPrompt) {
+        e.preventDefault() // Prevents the window from closing
+        dialog.showMessageBox({
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          title: 'Confirm',
+          message: 'Are you sure you want to close the wallet?'
+        }, function (response) {
+          if (response === 0) { // Runs the following if 'Yes' is clicked
+            // on next win.on('close') the app will be finally closed
+            showExitPrompt = false;
+            savedBeforeQuit = true;
+            win.close();
+          }
+        });
+      }
+
     } else {
       if (showExitPrompt) {
-          e.preventDefault() // Prevents the window from closing 
-          dialog.showMessageBox({
-              type: 'question',
-              buttons: ['Yes', 'No'],
-              title: 'Confirm',
-              message: 'Are you sure you want to close the wallet?'
-          }, function (response) {
-              if (response === 0) { // Runs the following if 'Yes' is clicked
-                // on next win.on('close') the app will be finally closed
-                showExitPrompt = false;
-                win.close();
-              }
-          });
-      } else if(!savedBeforeQuit) {
-        // Prevent the window from closing 
+        e.preventDefault() // Prevents the window from closing
+        dialog.showMessageBox({
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          title: 'Confirm',
+          message: 'Are you sure you want to close the wallet?'
+        }, function (response) {
+          if (response === 0) { // Runs the following if 'Yes' is clicked
+            // on next win.on('close') the app will be finally closed
+            showExitPrompt = false;
+            win.close();
+          }
+        });
+      } else if (!savedBeforeQuit) {
+        // Prevent the window from closing
         e.preventDefault();
-        if(win != null){
+        if (win != null) {
           ipcMain.on('wallet-closed', (event, arg) => {
             savedBeforeQuit = true;
             win.close();
@@ -282,7 +296,7 @@ function createWindow() {
   });
 
   // Create the Application's main menu
-  const template : Electron.MenuItemConstructorOptions[] = [{
+  const template: Electron.MenuItemConstructorOptions[] = [{
     label: 'Stoxum Wallet',
     submenu: [
       {
@@ -306,7 +320,7 @@ function createWindow() {
       {
         label: 'Quit',
         accelerator: 'Command+Q',
-        click: function() { app.quit(); }
+        click: function () { app.quit(); }
       }
     ]
   }];
