@@ -1,5 +1,7 @@
-import { Component, OnInit, OnDestroy, trigger, state, animate, 
-         transition, style, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, trigger, state, animate,
+  transition, style, ViewChild, AfterViewInit
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -35,13 +37,13 @@ const crypto = require('crypto');
   styleUrls: ['./home.component.scss'],
   animations: [
     trigger('component_visibility', [
-        state('shown', style({
-            opacity: 1
-        })),
-        state('hidden', style({
-            opacity: 0
-        })),
-        transition('* => *', animate('.75s'))
+      state('shown', style({
+        opacity: 1
+      })),
+      state('hidden', style({
+        opacity: 0
+      })),
+      transition('* => *', animate('.75s'))
     ])
   ]
 })
@@ -63,19 +65,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   applicationVersion: string;
   dbMetadata: LokiTypes.LokiDBMetadata;
 
-  showPrivateKeyImportDialog:boolean = false;
-  showSettingsDialog:boolean = false;
-  showServerInfoDialog:boolean = false;
-  showPasswordDialog:boolean = false;
+  showPrivateKeyImportDialog: boolean = false;
+  showSettingsDialog: boolean = false;
+  showServerInfoDialog: boolean = false;
+  showPasswordDialog: boolean = false;
   showPasswordCallback;
 
-  walletSettings: WalletSettings = {showNotifications: true, fiatCurrency: 'USD'};
+  walletSettings: WalletSettings = { showNotifications: true, fiatCurrency: 'USD' };
   fiatCurrencies: SelectItem[] = [];
   selectedFiatCurrency: string;
-  privateKeySeed:string;
-  walletPassword:string;
-  importFileObject:Object;
-  currentWalletObject:Object;
+  privateKeySeed: string;
+  walletPassword: string;
+  importFileObject: Object;
+  currentWalletObject: Object;
 
   privateKeyExportLocation: string = "";
   privateKeyImportfile: string = "";
@@ -111,11 +113,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   stoxumConnectionSubject: Observable<any>;
   uiChangeSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
 
-  balance:string;;
-  walletBalance:string;
-  fiat_balance:string;
-  transaction_count:number;
-  last_transaction:number;
+  balance: string;;
+  walletBalance: string;
+  btc_price: string;
+  fiat_balance: string;
+  transaction_count: number;
+  last_transaction: number;
 
   footer_visible: boolean = false;
   error_message: string = "";
@@ -125,28 +128,28 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   navigationSucceeded: boolean = false;
   showProgress: boolean = false;
 
-  constructor( private logger: LogService, 
-               private router: Router,
-               private electron: ElectronService,
-               private walletService: WalletService,
-               private stoxumService: StoxumService ,
-               private localStorageService: LocalStorageService,
-               private sessionStorageService: SessionStorageService,
-               private marketService: MarketService,
-               private datePipe: DatePipe,
-               private currencyPipe: CurrencyPipe ) {
+  constructor(private logger: LogService,
+    private router: Router,
+    private electron: ElectronService,
+    private walletService: WalletService,
+    private stoxumService: StoxumService,
+    private localStorageService: LocalStorageService,
+    private sessionStorageService: SessionStorageService,
+    private marketService: MarketService,
+    private datePipe: DatePipe,
+    private currencyPipe: CurrencyPipe) {
     this.logger.debug("### INIT HOME ###");
     this.applicationVersion = this.electron.remote.app.getVersion();
     this.backupPath = this.electron.remote.getGlobal("vars").backupPath;
     this.logger.debug("### HOME Backup Path: " + this.backupPath);
     this.electron.ipcRenderer.on("action", (event, arg) => {
-      if(arg === "save-wallet"){
+      if (arg === "save-wallet") {
         this.logger.debug("### HOME Logout Wallet on Suspend ###");
         this.closeWallet();
-      } else if(arg === "quit-wallet"){
+      } else if (arg === "quit-wallet") {
         this.logger.debug("### HOME Save Wallet on Quit ###");
         this.walletService.openWalletSubject.subscribe(state => {
-          if (state == AppConstants.KEY_INIT){
+          if (state == AppConstants.KEY_INIT) {
             this.electron.ipcRenderer.send('wallet-closed', true);
           }
         });
@@ -158,16 +161,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.logger.debug("### HOME ngAfterViewInit() ###");
     // We use setTimeout to avoid the `ExpressionChangedAfterItHasBeenCheckedError`
     // See: https://github.com/angular/angular/issues/6005
-    setTimeout(_ => {}, 0);
+    setTimeout(_ => { }, 0);
     // subscribe to UI changes
-    this.uiChangeSubject.subscribe(status =>{
-      if(status == AppConstants.KEY_CONNECTED){
+    this.uiChangeSubject.subscribe(status => {
+      if (status == AppConstants.KEY_CONNECTED) {
         this.setWalletUIConnected();
-      } else if (status == AppConstants.KEY_DISCONNECTED){
+      } else if (status == AppConstants.KEY_DISCONNECTED) {
         this.setWalletUIDisconnected();
       }
     });
@@ -177,28 +180,30 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.logger.debug("### HOME ngOnInit() - currentWallet: " + this.currentWallet);
     // get the complete wallet object
     let availableWallets = this.localStorageService.get(AppConstants.KEY_AVAILABLE_WALLETS);
-    let walletIndex = availableWallets.findIndex( item => item['walletUUID'] == this.currentWallet);
+    let walletIndex = availableWallets.findIndex(item => item['walletUUID'] == this.currentWallet);
     this.currentWalletObject = availableWallets[walletIndex];
     // get server state
     let serverStateSubject = this.stoxumService.serverStateSubject;
-    serverStateSubject.subscribe( state => {
+    serverStateSubject.subscribe(state => {
       this.serverState = state;
       this.logger.debug("### HOME Server State: " + JSON.stringify(this.serverState));
     });
     // define Tools context menu
     let tools_context_menu_template = [
-      { label: 'Import Private Keys', 
+      {
+        label: 'Import Private Keys',
         click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'import-priv-key');
         }
-      },  
-      { label: 'Export Private Keys', 
-        click(menuItem, browserWindow, event) { 
+      },
+      {
+        label: 'Export Private Keys',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'export-priv-keys');
         }
-      },  
-      // { label: 'Import Existing Wallet', 
-      //   click(menuItem, browserWindow, event) { 
+      },
+      // { label: 'Import Existing Wallet',
+      //   click(menuItem, browserWindow, event) {
       //     browserWindow.webContents.send('context-menu-event', 'add-wallet');
       //   }
       // }
@@ -206,47 +211,53 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.tools_context_menu = this.electron.remote.Menu.buildFromTemplate(tools_context_menu_template);
     this.tools_context_menu.append(new this.electron.remote.MenuItem({ type: 'separator' }));
     this.tools_context_menu.append(new this.electron.remote.MenuItem(
-      { label: 'Generate Paper Wallet', 
-        click(menuItem, browserWindow, event) { 
+      {
+        label: 'Generate Paper Wallet',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'paper-wallet');
         }, enabled: true
       })
     );
     this.tools_context_menu.append(new this.electron.remote.MenuItem(
-      { label: 'Import Paper Wallet', 
-        click(menuItem, browserWindow, event) { 
+      {
+        label: 'Import Paper Wallet',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'import-paper-wallet');
         }, enabled: true
       })
-    );    
+    );
     this.tools_context_menu.append(new this.electron.remote.MenuItem({ type: 'separator' }));
     this.tools_context_menu.append(new this.electron.remote.MenuItem(
-      { label: 'Change Password', 
-        click(menuItem, browserWindow, event) { 
+      {
+        label: 'Change Password',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'change-password');
         }, enabled: true
       })
     );
     this.tools_context_menu.append(new this.electron.remote.MenuItem({ type: 'separator' }));
     this.tools_context_menu.append(new this.electron.remote.MenuItem(
-      { label: 'Create New Wallet', 
-        click(menuItem, browserWindow, event) { 
+      {
+        label: 'Create New Wallet',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'create-wallet');
         }, enabled: true
       })
     );
     this.tools_context_menu.append(new this.electron.remote.MenuItem({ type: 'separator' }));
     this.tools_context_menu.append(new this.electron.remote.MenuItem(
-      { label: 'Close Wallet', 
-        click(menuItem, browserWindow, event) { 
+      {
+        label: 'Close Wallet',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'close-wallet');
         }, enabled: true
       })
     );
     this.tools_context_menu.append(new this.electron.remote.MenuItem({ type: 'separator' }));
     this.tools_context_menu.append(new this.electron.remote.MenuItem(
-      { label: 'Quit', 
-        click(menuItem, browserWindow, event) { 
+      {
+        label: 'Quit',
+        click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'quit');
         }
       })
@@ -254,47 +265,53 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // define Connection context menu
     let connect_context_menu_template = [
-     { label: 'Connect to Network', 
-       click(menuItem, browserWindow, event) { 
-          browserWindow.webContents.send('connect-context-menu-event', 'connect'); }, visible: true
+      {
+        label: 'Connect to Network',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('connect-context-menu-event', 'connect');
+        }, visible: true
       },
-      { label: 'Disconnect from Network', 
-        click(menuItem, browserWindow, event) { 
-            browserWindow.webContents.send('connect-context-menu-event', 'disconnect'); }, visible: false
+      {
+        label: 'Disconnect from Network',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('connect-context-menu-event', 'disconnect');
+        }, visible: false
       },
-      { label: 'Server Information', 
-        click(menuItem, browserWindow, event) { 
-            browserWindow.webContents.send('connect-context-menu-event', 'server-info'); }, visible: false
+      {
+        label: 'Server Information',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('connect-context-menu-event', 'server-info');
+        }, visible: false
       }
     ];
     this.connection_context_menu = this.electron.remote.Menu.buildFromTemplate(connect_context_menu_template);
-    
+
 
     // listen to tools context menu events
     this.electron.ipcRenderer.on('context-menu-event', (event, arg) => {
-      if(this.navigationSucceeded){
+      if (this.navigationSucceeded) {
         this.logger.debug("### HOME Menu Event: " + arg);
-        if(arg == 'import-priv-key')
+        if (arg == 'import-priv-key')
           this.onPrivateKeyImport();
-        else if(arg == 'export-priv-keys')
+        else if (arg == 'export-priv-keys')
           this.onPrivateKeysExport();
-        else if(arg == 'paper-wallet')
+        else if (arg == 'paper-wallet')
           this.onPaperWallet();
-        else if(arg == 'import-paper-wallet')
-            this.onImportPaperWallet();
-        else if(arg == 'backup-wallet')
+        else if (arg == 'import-paper-wallet')
+          this.onImportPaperWallet();
+        else if (arg == 'backup-wallet')
           this.onBackupWallet();
-        else if(arg == 'restore-backup')
+        else if (arg == 'restore-backup')
           this.onRestoreBackup();
-        else if(arg == 'add-wallet')
+        else if (arg == 'add-wallet')
           this.onAddWallet();
-        else if(arg == 'change-password')
-            this.changePassword();
-        else if(arg == 'create-wallet')
+        else if (arg == 'change-password')
+          this.changePassword();
+        else if (arg == 'create-wallet')
           this.createWallet();
-        else if(arg == 'close-wallet')
+        else if (arg == 'close-wallet')
           this.closeWallet();
-        else if(arg == 'quit')
+        else if (arg == 'quit')
           this.onQuit();
         else
           this.logger.debug("### Context menu not implemented: " + arg);
@@ -303,20 +320,20 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // listen to connect context menu events
     this.electron.ipcRenderer.on('connect-context-menu-event', (event, arg) => {
-      if(this.navigationSucceeded){
-        if(arg == 'connect'){
-          if(this.lastMenuEvent != "connect"){
+      if (this.navigationSucceeded) {
+        if (arg == 'connect') {
+          if (this.lastMenuEvent != "connect") {
             this.lastMenuEvent = "connect";
             this.onConnect();
           }
         }
-        else if(arg == 'disconnect'){
-          if(this.lastMenuEvent != "disconnect"){
+        else if (arg == 'disconnect') {
+          if (this.lastMenuEvent != "disconnect") {
             this.lastMenuEvent = "disconnect";
             this.onDisconnect();
           }
         }
-        else if(arg == 'server-info')
+        else if (arg == 'server-info')
           this.onServerInfo();
       }
     });
@@ -324,7 +341,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // navigate to the transactions
     this.router.navigate(['transactions']).then(navResult => {
       this.logger.debug("### HOME transactions navResult: " + navResult);
-      if(navResult){
+      if (navResult) {
         this.navigationSucceeded = true;
         // connect to stoxum network
         this.doConnectToStoxumNetwork();
@@ -334,14 +351,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     });
     // subscribe to the openWallet subject
     let openWalletSubject = this.walletService.openWalletSubject;
-    openWalletSubject.subscribe( result => {
-      if(result == AppConstants.KEY_LOADED){
+    openWalletSubject.subscribe(result => {
+      if (result == AppConstants.KEY_LOADED) {
         this.logger.debug("### HOME Wallet Open ###");
         // get the DB Metadata
         this.dbMetadata = this.walletService.getDBMetadata();
         this.logger.debug("### HOME DB Metadata: " + JSON.stringify(this.dbMetadata));
         // check transaction index
-        if(!this.walletService.isTransactionIndexValid()){
+        if (!this.walletService.isTransactionIndexValid()) {
           this.logger.debug("### HOME Rebuild TX List from Online ###");
           this.walletService.clearTransactions();
         }
@@ -349,7 +366,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.doBalanceUpdate();
         // update transaction count
         this.doTransacionUpdate();
-      } else if(result == AppConstants.KEY_INIT && this.currentWallet){
+      } else if (result == AppConstants.KEY_INIT && this.currentWallet) {
         // wallet is not open but we seem to have a session, not good so redirect to login
         this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
         this.router.navigate(['login']);
@@ -358,9 +375,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.setConnectedMenuItem(true);
     // load wallet settings
     this.walletSettings = this.localStorageService.get(AppConstants.KEY_WALLET_SETTINGS);
-    if(this.walletSettings == null){
+    if (this.walletSettings == null) {
       // settings do not exist yet so create
-      this.walletSettings = {fiatCurrency: "USD", showNotifications: true};
+      this.walletSettings = { fiatCurrency: "USD", showNotifications: true };
       this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
     }
     // load fiat currencies and update market value
@@ -368,54 +385,54 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateMarketService(this.walletSettings.fiatCurrency);
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.logger.debug("### HOME ngOnDestroy() ###");
-    if(this.isConnected && this.stoxumService != undefined){
+    if (this.isConnected && this.stoxumService != undefined) {
       this.stoxumService.disconnect();
     }
   }
 
-  doConnectToStoxumNetwork(){
+  doConnectToStoxumNetwork() {
     this.logger.debug("### HOME doConnectToStoxumNetwork() ###");
     // Connect to the stoxum network
     this.stoxumService.connect().subscribe(connected => {
       // this.stoxumService.stoxumConnectedSubject.subscribe( connected => {
-        if(connected == AppConstants.KEY_CONNECTED){
-          this.logger.debug("### HOME Connected ###");
-          // subscribe to transaction updates
-          this.stoxumService.transactionSubject.subscribe( tx => {
-            this.doTransacionUpdate();
-          });
-          // subscribe to account updates
-          this.stoxumService.accountSubject.subscribe( account => {
-            this.doBalanceUpdate();
-          });
-          this.uiChangeSubject.next(AppConstants.KEY_CONNECTED);
-        } else if(connected == AppConstants.KEY_DISCONNECTED){
-          this.uiChangeSubject.next(AppConstants.KEY_DISCONNECTED);
-        } else {
-          this.logger.debug("### HOME Connected value: " + connected);
-        }
-        this.logger.debug("### HOME currentServer: " + JSON.stringify(this.currentServer));
-      });
+      if (connected == AppConstants.KEY_CONNECTED) {
+        this.logger.debug("### HOME Connected ###");
+        // subscribe to transaction updates
+        this.stoxumService.transactionSubject.subscribe(tx => {
+          this.doTransacionUpdate();
+        });
+        // subscribe to account updates
+        this.stoxumService.accountSubject.subscribe(account => {
+          this.doBalanceUpdate();
+        });
+        this.uiChangeSubject.next(AppConstants.KEY_CONNECTED);
+      } else if (connected == AppConstants.KEY_DISCONNECTED) {
+        this.uiChangeSubject.next(AppConstants.KEY_DISCONNECTED);
+      } else {
+        this.logger.debug("### HOME Connected value: " + connected);
+      }
+      this.logger.debug("### HOME currentServer: " + JSON.stringify(this.currentServer));
+    });
   }
 
-  setWalletUIConnected(){
-      this.logger.debug("### HOME Set GUI Connected ###");
-      this.connectionImage = "assets/icons/connected.png"
-      this.connectionColorClass = "connected-color";
-      this.connected_tooltip = "Connected";
-      this.setConnectedMenuItem(true);
-      this.currentServer = this.stoxumService.getCurrentServer();
+  setWalletUIConnected() {
+    this.logger.debug("### HOME Set GUI Connected ###");
+    this.connectionImage = "assets/icons/connected.png"
+    this.connectionColorClass = "connected-color";
+    this.connected_tooltip = "Connected";
+    this.setConnectedMenuItem(true);
+    this.currentServer = this.stoxumService.getCurrentServer();
   }
 
-  setWalletUIDisconnected(){
-      this.logger.debug("### HOME Set GUI Disconnected ###");
-      this.connectionImage = "assets/icons/connected-red.png";
-      this.connectionColorClass = "disconnected-color";
-      this.connected_tooltip = "Disconnected";
-      this.setConnectedMenuItem(false);
-      // this.currentServer = { server_id: '', server_url: '', response_time: -1 };
+  setWalletUIDisconnected() {
+    this.logger.debug("### HOME Set GUI Disconnected ###");
+    this.connectionImage = "assets/icons/connected-red.png";
+    this.connectionColorClass = "disconnected-color";
+    this.connected_tooltip = "Disconnected";
+    this.setConnectedMenuItem(false);
+    // this.currentServer = { server_id: '', server_url: '', response_time: -1 };
   }
 
   onMenuClick() {
@@ -439,14 +456,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     item.command();
   }
 
-  onConnect(){
+  onConnect() {
     this.logger.debug("### HOME Connect ###");
     this.manualDisconnect = false;
     this.stoxumService.connect();
     // this.connectToStoxumNetwork();
   }
 
-  onDisconnect(){
+  onDisconnect() {
     this.logger.debug("### HOME Disconnect ###");
     this.manualDisconnect = true;
     this.stoxumService.disconnect();
@@ -465,14 +482,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // this.walletService.closeWallet();
     // Close the windows to cause an application exit
     this.electron.remote.getGlobal("vars").exitFromRenderer = true;
-    this.electron.remote.getCurrentWindow.call( close() );
+    this.electron.remote.getCurrentWindow.call(close());
   }
 
-  executePasswordCallback(){
+  executePasswordCallback() {
     this.showPasswordCallback();
   }
 
-  initPasswordCheck(){
+  initPasswordCheck() {
     this.walletPassword = "";
     this.error_message = "";
     this.footer_visible = false;
@@ -482,33 +499,34 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // this.showPrivateKeyImportDialog = true;
     this.logger.debug("### Open File Dialog: " + this.electron.remote.app.getPath("documents"));
     this.importKeys = [];
-    let fileFilters = [{name: 'Private Keys', extensions: ['keys']} ];
+    let fileFilters = [{ name: 'Private Keys', extensions: ['keys'] }];
     this.electron.remote.dialog.showOpenDialog(
-        { title: 'Private Key Import',
-          defaultPath: this.electron.remote.app.getPath("documents"),
-          filters: fileFilters,
-          properties: ['openFile']
-        }, (files) => {
-          this.logger.debug("### Files: " + JSON.stringify(files));
-          if(files && files.length > 0){
-            this.walletPassword = "";
-            let keys:Array<LokiKey> = JSON.parse(fs.readFileSync(files[0]));
-            this.logger.debug("### Keys: " + JSON.stringify(keys));
-            keys.forEach( key => {
-              // check if not yet exits
-              let dbKey = this.walletService.getKey(key.accountID);
-              if(dbKey == null){
-                this.importKeys.push(key);
-              }
-            });
-            if(this.importKeys.length > 0){
-              this.logger.debug("### Show Import Key Dialog ###");
-              this.showPrivateKeyImportDialog = true;
-            } else {
-              this.electron.remote.dialog.showMessageBox({ message: "There are no new keys to be imported from the selected file.", buttons: ["OK"] });
+      {
+        title: 'Private Key Import',
+        defaultPath: this.electron.remote.app.getPath("documents"),
+        filters: fileFilters,
+        properties: ['openFile']
+      }, (files) => {
+        this.logger.debug("### Files: " + JSON.stringify(files));
+        if (files && files.length > 0) {
+          this.walletPassword = "";
+          let keys: Array<LokiKey> = JSON.parse(fs.readFileSync(files[0]));
+          this.logger.debug("### Keys: " + JSON.stringify(keys));
+          keys.forEach(key => {
+            // check if not yet exits
+            let dbKey = this.walletService.getKey(key.accountID);
+            if (dbKey == null) {
+              this.importKeys.push(key);
             }
+          });
+          if (this.importKeys.length > 0) {
+            this.logger.debug("### Show Import Key Dialog ###");
+            this.showPrivateKeyImportDialog = true;
+          } else {
+            this.electron.remote.dialog.showMessageBox({ message: "There are no new keys to be imported from the selected file.", buttons: ["OK"] });
           }
         }
+      }
     );
   }
 
@@ -519,12 +537,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showPasswordDialog = true;
   }
 
-  onImportPrivateKey(){
+  onImportPrivateKey() {
     this.logger.debug("### Import Private Keys: " + this.importKeys);
-    if(this.walletPassword.length == 0 ){
+    if (this.walletPassword.length == 0) {
       this.error_message = "Please enter your password.";
       this.footer_visible = true;
-    } else if(!this.walletService.checkWalletPasswordHash(this.walletPassword)){
+    } else if (!this.walletService.checkWalletPasswordHash(this.walletPassword)) {
       this.error_message = "You entered an invalid password.";
       this.footer_visible = true;
     } else {
@@ -544,152 +562,160 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   selectPrivateKeysExportLocation() {
     this.logger.debug("### selectPrivateKeysExportLocation()");
     // first check the password
-    if(this.walletPassword.length == 0 ){
+    if (this.walletPassword.length == 0) {
       this.error_message = "Please enter your password.";
       this.footer_visible = true;
-    } else if(!this.walletService.checkWalletPasswordHash(this.walletPassword)){
+    } else if (!this.walletService.checkWalletPasswordHash(this.walletPassword)) {
       this.error_message = "You entered an invalid password.";
       this.footer_visible = true;
     } else {
       this.showPasswordDialog = false;
       this.logger.debug('Open File Dialog: ' + this.electron.remote.app.getPath("documents"));
       this.electron.remote.dialog.showOpenDialog(
-          { title: 'Private Key Export Location',
-            defaultPath: this.electron.remote.app.getPath("documents"), 
-            properties: ['openDirectory']}, (result) => {
-            this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-            if(result && result.length>0) {
-              this.privateKeyExportLocation = result[0];
-              // get all decrypted private keys
-              let allPrivateKeys = this.walletService.decryptAllKeys(this.walletPassword);
-              // create a filename
-              let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss-") + this.currentWallet + '.keys';
-              let keyFilePath = path.join(result[0], filename);
-              // Write the JSON array to the file 
-              fs.writeFile(keyFilePath, JSON.stringify(allPrivateKeys), (err) => {
-                if(err){
-                  this.electron.remote.dialog.showErrorBox("Error saving private keys", "An error occurred writing your private keys to a file: " + err.message);
-                }
-                this.electron.remote.dialog.showMessageBox(
-                  { message: "Your private keys have been saved to a file in the chosen directory. Make sure you put it in a safe place as it contains your decrypted private keys!", 
-                    buttons: ["OK"] 
-                  });
-              });
-            }
+        {
+          title: 'Private Key Export Location',
+          defaultPath: this.electron.remote.app.getPath("documents"),
+          properties: ['openDirectory']
+        }, (result) => {
+          this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
+          if (result && result.length > 0) {
+            this.privateKeyExportLocation = result[0];
+            // get all decrypted private keys
+            let allPrivateKeys = this.walletService.decryptAllKeys(this.walletPassword);
+            // create a filename
+            let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss-") + this.currentWallet + '.keys';
+            let keyFilePath = path.join(result[0], filename);
+            // Write the JSON array to the file
+            fs.writeFile(keyFilePath, JSON.stringify(allPrivateKeys), (err) => {
+              if (err) {
+                this.electron.remote.dialog.showErrorBox("Error saving private keys", "An error occurred writing your private keys to a file: " + err.message);
+              }
+              this.electron.remote.dialog.showMessageBox(
+                {
+                  message: "Your private keys have been saved to a file in the chosen directory. Make sure you put it in a safe place as it contains your decrypted private keys!",
+                  buttons: ["OK"]
+                });
+            });
           }
+        }
       );
     }
   }
 
-  onBackupWallet(){
+  onBackupWallet() {
     this.logger.debug('Open File Dialog: ' + this.electron.remote.app.getPath("documents"));
     this.electron.remote.dialog.showOpenDialog(
-        { title: 'Wallet Backup Location',
-          defaultPath: this.electron.remote.app.getPath("documents"), 
-          properties: ['openDirectory','createDirectory']}, (result) => {
-          this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-          if(result && result.length>0) {
-            let dbDump = this.walletService.getWalletDump();
-            // create a filename
-            let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss") + "-"+ this.currentWallet + ".backup";
-            let backupFilePath = path.join(result[0], filename);
-            // Write the JSON array to the file 
-            fs.writeFile(backupFilePath, dbDump, (err) => {
-              if(err){
-                  alert("An error occurred creating the backup file: "+ err.message)
-              }
-                          
-              alert("The backup has been succesfully saved to: " + filename);
-            });
-          }
-        }
-    );
-  }
-
-  onRestoreBackup(){
-    this.logger.debug('Open File Dialog: ' + this.electron.remote.app.getPath("documents"));
-    this.electron.remote.dialog.showOpenDialog(
-        { title: 'Select Wallet Backup File',
-          defaultPath: this.electron.remote.app.getPath("documents"),
-          filters: [
-            { name: 'STM Wallet Backups', extensions: ['backup'] }
-          ],
-          properties: ['openFile']
-        }, (result) => {
-          this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-          if(result && result.length > 0) {
-            let dbDump = fs.readFileSync(result[0]);
-            if(dbDump.length > 0){
-              this.walletService.importWalletDump(dbDump);
-              // redirect to login
-              this.router.navigate(['login']);
+      {
+        title: 'Wallet Backup Location',
+        defaultPath: this.electron.remote.app.getPath("documents"),
+        properties: ['openDirectory', 'createDirectory']
+      }, (result) => {
+        this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
+        if (result && result.length > 0) {
+          let dbDump = this.walletService.getWalletDump();
+          // create a filename
+          let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss") + "-" + this.currentWallet + ".backup";
+          let backupFilePath = path.join(result[0], filename);
+          // Write the JSON array to the file
+          fs.writeFile(backupFilePath, dbDump, (err) => {
+            if (err) {
+              alert("An error occurred creating the backup file: " + err.message)
             }
-          } else {
-            alert("An error occurred reading the backup file: "+ result[0]);
-          }
+
+            alert("The backup has been succesfully saved to: " + filename);
+          });
         }
+      }
     );
   }
 
-  onAddWallet(){
+  onRestoreBackup() {
     this.logger.debug('Open File Dialog: ' + this.electron.remote.app.getPath("documents"));
     this.electron.remote.dialog.showOpenDialog(
-        { title: 'Select Wallet',
-          defaultPath: this.electron.remote.app.getPath("documents"),
-          filters: [
-            { name: 'STM Wallet', extensions: ['db'] }
-          ],
-          properties: ['openFile']
-        }, (result) => {
-          this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-          if(result && result.length > 0) {
-            this.importFileObject = path.parse(result[0]);
-            this.walletPassword = "";
-            this.showPasswordCallback = this.doWalletImport;
-            this.showPasswordDialog = true;
-            return;
-          } else {
-            return;
+      {
+        title: 'Select Wallet Backup File',
+        defaultPath: this.electron.remote.app.getPath("documents"),
+        filters: [
+          { name: 'STM Wallet Backups', extensions: ['backup'] }
+        ],
+        properties: ['openFile']
+      }, (result) => {
+        this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
+        if (result && result.length > 0) {
+          let dbDump = fs.readFileSync(result[0]);
+          if (dbDump.length > 0) {
+            this.walletService.importWalletDump(dbDump);
+            // redirect to login
+            this.router.navigate(['login']);
           }
+        } else {
+          alert("An error occurred reading the backup file: " + result[0]);
         }
+      }
     );
   }
 
-  updateMarketService(event){
+  onAddWallet() {
+    this.logger.debug('Open File Dialog: ' + this.electron.remote.app.getPath("documents"));
+    this.electron.remote.dialog.showOpenDialog(
+      {
+        title: 'Select Wallet',
+        defaultPath: this.electron.remote.app.getPath("documents"),
+        filters: [
+          { name: 'STM Wallet', extensions: ['db'] }
+        ],
+        properties: ['openFile']
+      }, (result) => {
+        this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
+        if (result && result.length > 0) {
+          this.importFileObject = path.parse(result[0]);
+          this.walletPassword = "";
+          this.showPasswordCallback = this.doWalletImport;
+          this.showPasswordDialog = true;
+          return;
+        } else {
+          return;
+        }
+      }
+    );
+  }
+
+  updateMarketService(event) {
     if (this.walletSettings.fiatCurrency !== undefined) {
-        this.marketService.changeCurrency(this.walletSettings.fiatCurrency);
+      this.marketService.changeCurrency(this.walletSettings.fiatCurrency);
     }
   }
 
 
   doBalanceUpdate() {
     this.walletBalance = this.walletService.getWalletBalance() ? this.walletService.getWalletBalance() : "0";
-    this.balance = STMUtil.dropsToSTM(this.walletBalance)
-    let balanceCSC = new Big(this.balance);
-    if(this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined){
+    this.balance = STMUtil.dropsToSTM(this.walletBalance);
+    let balanceSTM = new Big(this.balance);
+    if (this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined) {
       this.logger.debug("### STM Price: " + this.marketService.stmPrice + " BTC: " + this.marketService.btcPrice + " Fiat: " + this.marketService.coinMarketInfo.price_fiat);
-      let fiatValue = balanceCSC.times(new Big(this.marketService.coinMarketInfo.price_fiat)).toString();
+      let fiatValue = balanceSTM.times(new Big(this.marketService.coinMarketInfo.price_fiat)).toString();
       this.fiat_balance = this.currencyPipe.transform(fiatValue, this.marketService.coinMarketInfo.selected_fiat, true, "1.2-2");
     }
   }
 
-  doTransacionUpdate(){
+  doTransacionUpdate() {
     this.transaction_count = this.walletService.getWalletTxCount() ? this.walletService.getWalletTxCount() : 0;
     let lastTX = this.walletService.getWalletLastTx();
-    if(lastTX != null){
-        this.last_transaction = lastTX.timestamp;
+    if (lastTX != null) {
+      this.last_transaction = lastTX.timestamp;
     }
   }
 
-  doWalletImport(){
+  doWalletImport() {
     this.logger.debug("Add Wallet Location: " + JSON.stringify(this.importFileObject));
     let walletHash = this.walletService.generateWalletPasswordHash(this.importFileObject['name'], this.walletPassword);
     let newWallet =
-        { "walletUUID": this.importFileObject['name'], 
-          "importedDate": STMUtil.iso8601ToStoxumTime(new Date().toISOString()),
-          "location": this.importFileObject['dir'],
-          "hash": walletHash
-        };
+      {
+        "walletUUID": this.importFileObject['name'],
+        "importedDate": STMUtil.iso8601ToStoxumTime(new Date().toISOString()),
+        "location": this.importFileObject['dir'],
+        "hash": walletHash
+      };
     let availableWallets = this.localStorageService.get(AppConstants.KEY_AVAILABLE_WALLETS);
     availableWallets.push(newWallet);
     this.localStorageService.set(AppConstants.KEY_AVAILABLE_WALLETS, availableWallets);
@@ -698,7 +724,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate(['login']);
   }
 
-  createWallet(){
+  createWallet() {
     this.walletService.closeWallet();
     this.stoxumService.disconnect();
     this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
@@ -707,7 +733,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate(['wallet-setup']);
   }
 
-  closeWallet(){
+  closeWallet() {
     this.walletService.closeWallet();
     this.stoxumService.disconnect();
     this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
@@ -715,8 +741,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // this.electron.remote.getCurrentWindow().reload();
   }
 
-  setConnectedMenuItem(connected: boolean){
-    if(connected){
+  setConnectedMenuItem(connected: boolean) {
+    if (connected) {
       // enable disconnect
       this.connection_context_menu.items[0].visible = false;
       this.connection_context_menu.items[1].visible = true;
@@ -749,7 +775,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.logger.debug("Transactions Clicked !!");
     this.active_menu_item = "transactions";
     // navigate to transactions
-    this.router.navigate(['home','transactions']);
+    this.router.navigate(['home', 'transactions']);
   }
 
   onSendCoins() {
@@ -770,44 +796,44 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.logger.debug("Addressbook Clicked !!");
     this.active_menu_item = "addressbook";
     // navigate to addressbook
-    this.router.navigate(['home','addressbook']);
+    this.router.navigate(['home', 'addressbook']);
   }
 
-  onPaperWallet(){
+  onPaperWallet() {
     this.logger.debug("Paperwallet Clicked !!");
     this.active_menu_item = "";
     // navigate to paperwallet
-    this.router.navigate(['home','paperwallet']);
+    this.router.navigate(['home', 'paperwallet']);
   }
 
-  onImportPaperWallet(){
+  onImportPaperWallet() {
     this.logger.debug("ImportPaperwallet Clicked !!");
     this.active_menu_item = "";
     // navigate to paperwallet
-    this.router.navigate(['home','importpaperwallet']);
-  }  
+    this.router.navigate(['home', 'importpaperwallet']);
+  }
 
-  changePassword(){ 
+  changePassword() {
     this.logger.debug("Change Password Clicked !!");
     this.active_menu_item = "";
-    this.router.navigate(['home','changepassword']);
+    this.router.navigate(['home', 'changepassword']);
   }
 
   onCoinSwap() {
     this.logger.debug("Coin Swap Clicked !!");
     this.active_menu_item = "coinswap";
     // navigate to swap
-    this.router.navigate(['home','swap']);
+    this.router.navigate(['home', 'swap']);
   }
 
   onSupport() {
     this.logger.debug("Support Clicked !!");
     this.active_menu_item = "support";
     // navigate to support
-    this.router.navigate(['home','support']);
+    this.router.navigate(['home', 'support']);
   }
 
-  onSettingsSave(){
+  onSettingsSave() {
     // save the settings to localstorage
     this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
     // update the balance to reflect the last changes
@@ -821,7 +847,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // create a filename
     let filename = this.datePipe.transform(Date.now(), "yyyy-MM-dd-HH-mm-ss") + "-stm-wallet.backup";
     let backupFilePath = path.join(this.backupPath, filename);
-    // Write the JSON array to the file 
+    // Write the JSON array to the file
     fs.writeFileSync(backupFilePath, dbDump);
     // signal electron we are done
     // this.electron.ipcRenderer.sendSync("backup-finished");

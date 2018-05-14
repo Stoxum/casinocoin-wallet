@@ -24,9 +24,9 @@ export class ExchangesComponent implements OnInit {
   marketCapital: string = "0.00";
 
   constructor(private logger: LogService,
-              private electronService: ElectronService,
-              private marketService: MarketService,
-              private currencyPipe: CurrencyPipe ) {
+    private electronService: ElectronService,
+    private marketService: MarketService,
+    private currencyPipe: CurrencyPipe) {
     this.logger.debug("### INIT Exchanges ###");
     this.exchanges = this.marketService.exchanges;
   }
@@ -34,7 +34,8 @@ export class ExchangesComponent implements OnInit {
   ngOnInit() {
     // init exchanges context menu
     let exchanges_context_menu_template = [
-      { label: 'Visit Exchange',
+      {
+        label: 'Visit Exchange',
         click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('exchanges-context-menu-event', 'visit-exchange');
         }
@@ -45,27 +46,28 @@ export class ExchangesComponent implements OnInit {
     // listen to address context menu events
     this.electronService.ipcRenderer.on('exchanges-context-menu-event', (event, arg) => {
       this.logger.debug("### Exchanges Menu Event: " + arg);
-      if(arg == 'visit-exchange')
+      if (arg == 'visit-exchange')
         this.visitExchange();
       else
         this.logger.debug("### Context menu not implemented: " + arg);
     });
 
     // listen to exchange updates
-    this.marketService.exchangeUpdates.subscribe( result =>{
+    this.marketService.exchangeUpdates.subscribe(result => {
       this.exchanges = result;
     });
 
     // update coininfo
     this.updateCoininfo();
     // listen to coininfo updates
-    this.marketService.coininfoUpdates.subscribe( result => {
+    this.marketService.coininfoUpdates.subscribe(result => {
       this.updateCoininfo();
     });
   }
 
-  updateCoininfo(){
-    if(this.marketService.coinMarketInfo != null){
+  updateCoininfo() {
+    if (this.marketService.coinMarketInfo != null) {
+      //TO-DO
       let coinFiat = this.marketService.coinMarketInfo.price_fiat ? this.marketService.coinMarketInfo.price_fiat : "0.00";
       this.logger.debug("### updateCoininfo - coinFiat: " + coinFiat);
       let marketFiat = new Big(this.coinSupply).times(new Big(coinFiat)).toString();
@@ -74,20 +76,20 @@ export class ExchangesComponent implements OnInit {
     }
   }
 
-  onExchangeContextMenu(event){
+  onExchangeContextMenu(event) {
     this.selectedExchangeRow = event.data;
     this.logger.debug("### onExchangeContextMenu: " + JSON.stringify(this.selectedExchangeRow));
     this.exchange_context_menu.popup(this.electronService.remote.getCurrentWindow());
   }
 
-  onExchangeRowClick(e:any) {
+  onExchangeRowClick(e: any) {
     this.logger.debug("### onExchangeRowClick: " + JSON.stringify(e));
     this.selectedExchangeRow = e.data;
   }
 
 
-  visitExchange(){
-    if(this.selectedExchangeRow){
+  visitExchange() {
+    if (this.selectedExchangeRow) {
       this.electronService.remote.shell.openExternal(this.selectedExchangeRow.tradeURL);
     }
     return false;
