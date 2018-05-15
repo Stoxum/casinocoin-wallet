@@ -114,6 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   uiChangeSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
 
   balance: string;;
+  footer_balance: string;
   walletBalance: string;
   btc_price: string;
   fiat_balance: string;
@@ -690,6 +691,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   doBalanceUpdate() {
     this.walletBalance = this.walletService.getWalletBalance() ? this.walletService.getWalletBalance() : "0";
     this.balance = STMUtil.dropsToSTM(this.walletBalance);
+    //TO-DO
+    this.footer_balance = this.balance.substring(0, this.balance.toString().indexOf('.') + 3);
     let balanceSTM = new Big(this.balance);
     if (this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined) {
       this.logger.debug("### STM Price: " + this.marketService.stmPrice + " BTC: " + this.marketService.btcPrice + " Fiat: " + this.marketService.coinMarketInfo.price_fiat);

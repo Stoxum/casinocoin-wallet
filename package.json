@@ -1,12 +1,12 @@
 {
   "name": "stoxum-wallet",
-  "version": "4.1.3",
+  "version": "1.0.0",
   "productName": "Stoxum Wallet",
   "description": "Stoxum Desktop Wallet",
   "homepage": "https://github.com/Stoxum/stoxum-wallet",
   "author": {
-    "name": "Stoxum Foundation",
-    "email": "info@stoxum.org"
+    "name": "Stoxum Platform",
+    "email": "contact@stoxum.org"
   },
   "keywords": [
     "stoxum",

@@ -4,6 +4,14 @@
     display: none;
 }
 
+.ui-button, .ui-button span {
+  cursor: pointer;
+}
+
+.ui-button-text {
+  cursor: pointer;
+}
+
 ::ng-deep .footer-error {
     color: $stoxumRed;
     font-weight: bolder;
