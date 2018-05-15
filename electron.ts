@@ -99,11 +99,11 @@ function appUpdater() {
 }
 
 // set the default userData directory
-const defaultCSCPath = path.join(app.getPath('home'), '.stoxum');
-if (!fs.existsSync(defaultCSCPath)) {
-  fs.mkdirSync(defaultCSCPath);
+const defaultSTMPath = path.join(app.getPath('home'), '.stoxum');
+if (!fs.existsSync(defaultSTMPath)) {
+  fs.mkdirSync(defaultSTMPath);
 }
-app.setPath('userData', defaultCSCPath);
+app.setPath('userData', defaultSTMPath);
 
 // configure loggging
 const winston = require('winston');

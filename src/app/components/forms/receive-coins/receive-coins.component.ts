@@ -128,7 +128,7 @@ export class ReceiveCoinsComponent implements OnInit {
   showReceiveQRCode(){
     if(this.selectedReceiveRow){
       this.logger.debug("showReceiveQRCode: " + JSON.stringify(this.selectedReceiveRow));
-      this.stmReceiveURI = STMUtil.generateCSCQRCodeURI({ address: this.selectedReceiveRow.accountID });
+      this.stmReceiveURI = STMUtil.generateSTMQRCodeURI({ address: this.selectedReceiveRow.accountID });
       this.showReceiveQRCodeDialog = true;
     }
   }
@@ -216,6 +216,6 @@ export class ReceiveCoinsComponent implements OnInit {
     if(this.label && this.label.length > 0){
       uriObject['label'] = this.label;
     }
-    this.stmReceiveURI = STMUtil.generateCSCQRCodeURI(uriObject);
+    this.stmReceiveURI = STMUtil.generateSTMQRCodeURI(uriObject);
   }
 }

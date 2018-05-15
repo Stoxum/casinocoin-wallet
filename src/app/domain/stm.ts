@@ -12,7 +12,7 @@ export class STM {
 
     constructor(private logger: Logger) {}
 
-    isCSCToCSCPayment(payment: Payment): boolean {
+    isSTMToSTMPayment(payment: Payment): boolean {
         let sourceCurrency = _.get(payment, 'source.maxAmount.currency', _.get(payment, 'source.amount.currency'))
         let destinationCurrency = _.get(payment, 'destination.amount.currency',  _.get(payment, 'destination.minAmount.currency'))
         return sourceCurrency === 'STM' && destinationCurrency === 'STM';
@@ -34,9 +34,9 @@ export class STM {
     }
 
     createMaximalAmount(amount: Amount): Amount {
-        const maxCSCValue = '200000000'
+        const maxSTMValue = '200000000'
         const maxIOUValue = '9999999999999999e80'
-        const maxValue = amount.currency === 'STM' ? maxCSCValue : maxIOUValue
+        const maxValue = amount.currency === 'STM' ? maxSTMValue : maxIOUValue
         return _.assign({}, amount, { value: maxValue })
     }
 
@@ -62,7 +62,7 @@ export class STM {
         // send the whole source amount, so we set the destination amount to the
         // maximum possible amount. otherwise it's possible that the destination
         // cap could be hit before the source cap.
-        let amount = payment.destination.minAmount && !this.isCSCToCSCPayment(payment) ?
+        let amount = payment.destination.minAmount && !this.isSTMToSTMPayment(payment) ?
             this.createMaximalAmount(payment.destination.minAmount) :
             (payment.destination.amount || payment.destination.minAmount)
 
@@ -103,7 +103,7 @@ export class STM {
         txJSON['Fee'] = 1000000;
 
         // Future use of non STM payments
-        // if (!this.isCSCToCSCPayment(payment)) {
+        // if (!this.isSTMToSTMPayment(payment)) {
         //     // Don't set SendMax for STM->STM payment
         //     if (payment.allowPartialPayment === true ||
         //         payment.destination.minAmount !== undefined) {

@@ -204,7 +204,7 @@ export class STMUtil {
         return "stoxum:" + address + "?label=" + encodeURI("Swap Deposit");
     }
 
-    static generateCSCQRCodeURI(input: STMURI){
+    static generateSTMQRCodeURI(input: STMURI){
         let uri = "https://stoxum.org/send?to=" + input.address;
         if(input.amount){
             uri = uri + "&amount=" + input.amount;
