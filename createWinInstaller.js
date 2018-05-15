@@ -13,7 +13,7 @@ getInstallerConfig(arch)
     process.exit(1)
   });
 
-function getInstallerConfig (arch) {
+function getInstallerConfig(arch) {
   console.log('creating windows installer for: ' + arch);
   const rootPath = path.join('./');
   const appPath = path.join(rootPath, 'app-builds');
@@ -21,12 +21,12 @@ function getInstallerConfig (arch) {
 
   return Promise.resolve({
     appDirectory: path.join(appPath, 'stoxum-wallet-win32-' + arch + '/'),
-    authors: 'Stoxum Foundation',
+    authors: 'Stoxum Platform',
     noMsi: true,
     noDelta: true,
-    outputDirectory: path.join(outPath, 'windows-'+arch),
-    exe: 'stoxum-wallet.exe',
-    setupExe: 'stoxum-wallet-'+arch+'-'+appVersion+'.exe',
+    outputDirectory: path.join(outPath, 'windows-' + arch),
+    exe: 'stoxumWallet.exe',
+    setupExe: 'stoxumWallet-' + arch + '-' + appVersion + '.exe',
     setupIcon: path.join(rootPath, 'src', 'assets', 'brand', 'stoxum-icon-256x256.ico'),
     iconUrl: iconUrlPath,
     loadingGif: path.join(rootPath, 'src', 'assets', 'brand', 'setup.gif'),
