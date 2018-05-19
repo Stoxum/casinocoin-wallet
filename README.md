@@ -70,3 +70,28 @@ Notice that all NodeJS v7 native libs are already added in this sample. Feel fre
 
 Maybe you want to execute the application in the browser (WITHOUT HOT RELOAD ACTUALLY...) ? You can do it with `npm run start:web`.  
 Note that you can't use Electron or NodeJS native libraries in this case. Please check `providers/electron.service.ts` to watch how conditional import of electron/Native libraries is done.
+
+
+## Build instructions
+### Mac OS
+`npm run electron:mac`
+
+`codesign --deep --force --verbose --sign - app-builds/stoxum-wallet-darwin-x64/stoxum-wallet.app`
+
+`mv app-builds/stoxum-wallet-darwin-x64/stoxum-wallet.app app-builds/stoxum-wallet-darwin-x64/StoxumWallet.app && electron-installer-dmg app-builds/stoxum-wallet-darwin-x64/StoxumWallet.app StoxumWallet`
+
+### Debian / Centos 
+
+`npm run electron:linux`
+
+Comment not needed platfrom in file createLinuxInstaller.js
+
+`node createLinuxInstaller.js`
+
+### Windows
+
+`npm run electron:windows32`
+
+Edit createWindowsInstaller to change arch arg
+
+`node createWindowsInstaller.js`
