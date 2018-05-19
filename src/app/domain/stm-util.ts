@@ -142,9 +142,9 @@ export class STMUtil {
 
     static validateAccountID(accountID: string): boolean {
         // prepare position lookup table with stoxum alphabet
-        var vals = 'cpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2brdeCg65jkm8oFqi1tuvAxyz';
-        // check if address starts with lowercase 'c'
-        if(!accountID.startsWith('c')){
+        var vals = 'xFtyEXqQ2YpfNC9zmjoaJAG5n4MSigZsKvB1UP37kwbucVrTHhD8dRLeW6';
+        // check if address starts with lowercase 'x'
+        if(!accountID.startsWith('x')){
             return false;
         }
         // decode the the address
@@ -205,7 +205,7 @@ export class STMUtil {
     }
 
     static generateSTMQRCodeURI(input: STMURI){
-        let uri = "https://stoxum.org/send?to=" + input.address;
+        let uri = "https://stoxum.com/send?to=" + input.address;
         if(input.amount){
             uri = uri + "&amount=" + input.amount;
         }
