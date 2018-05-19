@@ -64,7 +64,7 @@ export class SendCoinsComponent implements OnInit {
   footer_visible: boolean = false;
   error_message: string = "";
 
-  constructor(private logger:LogService, 
+  constructor(private logger:LogService,
               private stoxumService: StoxumService,
               private walletService: WalletService,
               private messageService: MessageService,
@@ -80,7 +80,7 @@ export class SendCoinsComponent implements OnInit {
       if(result == AppConstants.KEY_LOADED){
         this.walletService.getAllAccounts().forEach( element => {
           if(new Big(element.balance) > 0){
-            let accountLabel = element.label + " - " + element.accountID.substring(0,10) + '...' + " [Balance: " + 
+            let accountLabel = element.label + " - " + element.accountID.substring(0,10) + '...' + " [Balance: " +
                                 this.stmAmountPipe.transform(element.balance, false, true) + "]";
             this.accounts.push({label: accountLabel, value: element.accountID});
           }
@@ -228,9 +228,9 @@ export class SendCoinsComponent implements OnInit {
       this.walletPassword = "";
       this.signAndSubmitIcon = "fa-check";
     } else {
-      let preparePayment: PrepareTxPayment = 
-          { source: this.selectedAccount, 
-            destination: this.recipient, 
+      let preparePayment: PrepareTxPayment =
+          { source: this.selectedAccount,
+            destination: this.recipient,
             amountDrops: STMUtil.stmToDrops(this.amount),
             feeDrops: STMUtil.stmToDrops(this.fees),
             description: this.description
@@ -279,8 +279,8 @@ export class SendCoinsComponent implements OnInit {
     this.initPasswordCheck();
     if(!this.allowSendFromCurrentConnection){
       this.electronService.remote.dialog.showMessageBox(
-        { message: "The server you are connected to can not relay your transaction at this moment. Reconnect or close and re-open your wallet to retry.", 
-          buttons: ["OK"] 
+        { message: "The server you are connected to can not relay your transaction at this moment. Reconnect or close and re-open your wallet to retry.",
+          buttons: ["OK"]
         });
     } else {
       this.showPasswordDialog = true;

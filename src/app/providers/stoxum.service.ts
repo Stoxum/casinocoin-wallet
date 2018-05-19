@@ -6,8 +6,8 @@ import { Subject } from 'rxjs/Subject';
 import { WebsocketService } from './websocket.service';
 import { WalletService } from './wallet.service';
 import { LocalStorageService } from "ngx-store";
-import { LedgerStreamMessages, ValidationStreamMessages, 
-         TransactionStreamMessages, ServerStateMessage, 
+import { LedgerStreamMessages, ValidationStreamMessages,
+         TransactionStreamMessages, ServerStateMessage,
          ServerDefinition } from '../domain/websocket-types';
 import { LogService } from './log.service';
 import * as stmKeyAPI from 'stoxum-keypairs';
@@ -43,7 +43,7 @@ export class StoxumService implements OnDestroy {
     public lastTransactionHash: string = "";
     public stoxumConnectedSubject = new BehaviorSubject<boolean>(false);
 
-    constructor(private logger: LogService, 
+    constructor(private logger: LogService,
                 private wsService: WebsocketService,
                 private walletService: WalletService,
                 private notificationService: NotificationService,
@@ -71,7 +71,7 @@ export class StoxumService implements OnDestroy {
             // re-initialize server state
             this.initServerState();
             this.disconnectStarted = false;
-            // find server to connect to 
+            // find server to connect to
             this.wsService.findBestServer(connectToProduction);
             // check if the server is found, otherwise wait till it is
             const serverFoundSubscription = this.wsService.isServerFindComplete$.subscribe(serverFound => {
@@ -221,7 +221,7 @@ export class StoxumService implements OnDestroy {
                                 if(incommingMessage.ledger_index <= tx.lastLedgerSequence){
                                     this.logger.debug("### StoxumService - check TX: " + JSON.stringify(tx));
                                     // get the tx to check its status
-                                    this.getTransaction(tx.txID);    
+                                    this.getTransaction(tx.txID);
                                 }
                             }
                         });
@@ -254,20 +254,20 @@ export class StoxumService implements OnDestroy {
                     if(dbTX.direction == AppConstants.KEY_WALLET_TX_IN){
                         this.getAccountInfo(dbTX.destination);
                         this.notificationService.addMessage(
-                            {title: 'Incomming STM Transaction', 
+                            {title: 'Incomming STM Transaction',
                             body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToSTM(dbTX.amount), "1.2-8") +
                                 ' coins from ' + dbTX.accountID});
                     } else if(dbTX.direction == AppConstants.KEY_WALLET_TX_OUT){
                         this.getAccountInfo(dbTX.accountID);
                         this.notificationService.addMessage(
-                            {title: 'Outgoing STM Transaction', 
+                            {title: 'Outgoing STM Transaction',
                             body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(dbTX.amount), "1.2-8") +
                                 ' coins to ' + dbTX.destination});
                     } else {
                         this.getAccountInfo(dbTX.destination);
                         this.getAccountInfo(dbTX.accountID);
                         this.notificationService.addMessage(
-                            {title: 'Wallet Transaction', 
+                            {title: 'Wallet Transaction',
                             body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(dbTX.amount), "1.2-8") +
                                 ' coins to your own address ' + dbTX.destination});
                     }
@@ -332,10 +332,10 @@ export class StoxumService implements OnDestroy {
                             }
                         }
                     });
-                    this.logger.debug("### StoxumService - Account TX - OUT: " + outgoingCount + 
-                                        " TOTAL: " + dbAccountTransactions.length + 
+                    this.logger.debug("### StoxumService - Account TX - OUT: " + outgoingCount +
+                                        " TOTAL: " + dbAccountTransactions.length +
                                         " Sequence: " + account_result.Sequence +
-                                        " Last DB Sequence: " + lastSequence + 
+                                        " Last DB Sequence: " + lastSequence +
                                         " Get Ledgers From: " + lastTxLedgerIndex);
                     // the account transaction total from the database to check if we are missing transactions
                     let accountTxBalance = this.walletService.getAccountTXBalance(walletAccount.accountID);
@@ -360,7 +360,7 @@ export class StoxumService implements OnDestroy {
                         for (let i=startIndex; i <= endIndex; i++){
                             this.getLedger(i);
                         }
-                        this.ledgersLoaded = true;   
+                        this.ledgersLoaded = true;
                     }
                 } else if(incommingMessage['id'] == 'AccountUpdates'){
                     this.logger.debug("### StoxumService - Account Update: " + JSON.stringify(incommingMessage.result));
@@ -415,12 +415,12 @@ export class StoxumService implements OnDestroy {
                         // insert into the wallet
                         this.walletService.addTransaction(dbTX);
                         this.notificationService.addMessage(
-                            { title:'Transaction Submitted', 
+                            { title:'Transaction Submitted',
                               body:'Your transaction has been submitted succesfully to the network.'
                             });
                     } else {
                         this.notificationService.addMessage(
-                            { title:'Transaction Submit Error', 
+                            { title:'Transaction Submit Error',
                               body: incommingMessage.result.engine_result_message
                             });
                     }
@@ -440,14 +440,14 @@ export class StoxumService implements OnDestroy {
                         // save updated record
                         this.walletService.updateTransaction(tx);
                         let updateTxIndex = this.transactions.findIndex( item => item.txID == tx.txID);
-                        this.transactions[updateTxIndex] = tx;    
+                        this.transactions[updateTxIndex] = tx;
                     }
                     // update accounts
                     if(tx.direction == AppConstants.KEY_WALLET_TX_IN){
                         this.getAccountInfo(tx.destination);
                         if(notifyUser){
                             this.notificationService.addMessage(
-                                {title: 'Incomming STM Transaction', 
+                                {title: 'Incomming STM Transaction',
                                 body: 'You received '+ this.decimalPipe.transform(STMUtil.dropsToSTM(tx.amount), "1.2-8") +
                                     ' coins from ' + tx.accountID});
                         }
@@ -455,7 +455,7 @@ export class StoxumService implements OnDestroy {
                         this.getAccountInfo(tx.accountID);
                         if(notifyUser){
                             this.notificationService.addMessage(
-                                {title: 'Outgoing STM Transaction', 
+                                {title: 'Outgoing STM Transaction',
                                 body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(tx.amount), "1.2-8") +
                                     ' coins to ' + tx.destination});
                         }
@@ -464,7 +464,7 @@ export class StoxumService implements OnDestroy {
                         this.getAccountInfo(tx.accountID);
                         if(notifyUser){
                             this.notificationService.addMessage(
-                                {title: 'Wallet Transaction', 
+                                {title: 'Wallet Transaction',
                                 body: 'You sent '+ this.decimalPipe.transform(STMUtil.dropsToSTM(tx.amount), "1.2-8") +
                                     ' coins to your own address ' + tx.destination});
                         }
@@ -510,13 +510,13 @@ export class StoxumService implements OnDestroy {
             } else if(incommingMessage.status === 'error'){
                 this.logger.debug("### StoxumService - Error Received: " + JSON.stringify(incommingMessage));
 
-            } else { 
+            } else {
                 this.logger.debug("unmapped message: " + JSON.stringify(incommingMessage));
             }
         });
     }
 
-    
+
     sendCommand(command: Object){
         this.wsService.sendingCommands.next(JSON.stringify(command));
     }
@@ -580,7 +580,7 @@ export class StoxumService implements OnDestroy {
         // check if we have a marker to start from
         if(startMarker){
             this.logger.debug("### StoxumService - getAccountTx - addMarker: " + JSON.stringify(startMarker));
-            accountTxRequest['marker'] = startMarker; 
+            accountTxRequest['marker'] = startMarker;
         }
         this.sendCommand(accountTxRequest);
     }
@@ -607,11 +607,11 @@ export class StoxumService implements OnDestroy {
     }
 
     generateNewKeyPair(): LokiKey {
-        let newKeyPair: LokiKey = { 
-            privateKey: "", 
-            publicKey: "", 
-            accountID: "", 
-            secret: "", 
+        let newKeyPair: LokiKey = {
+            privateKey: "",
+            publicKey: "",
+            accountID: "",
+            secret: "",
             encrypted: false
         };
         newKeyPair.secret = stmKeyAPI.generateSeed();
@@ -666,7 +666,7 @@ export class StoxumService implements OnDestroy {
             Sequence: txWalletAccount.lastSequence,
             LastLedgerSequence: lastLedgerForTx
         }
-    
+
         if (input.invoiceID !== undefined) {
             txJSON.InvoiceID = input.invoiceID;
         }
@@ -694,7 +694,7 @@ export class StoxumService implements OnDestroy {
             let encodedTx = stmBinaryAPI.encodeForSigning(tx);
             // sign transaction
             tx.TxnSignature = stmKeyAPI.sign(encodedTx, privateKey);
-            return stmBinaryAPI.encode(tx);   
+            return stmBinaryAPI.encode(tx);
         } else {
             // something went wrong, probably a wrong password
             return AppConstants.KEY_ERRORED;

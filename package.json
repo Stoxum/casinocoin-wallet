@@ -82,7 +82,7 @@
     "rxjs": "5.5.5",
     "rxjs-websockets": "4.0.0",
     "scandir": "^0.1.2",
-    "stoxum-binary-codec": "^0.1.15",
+    "stoxum-binary-codec": "^0.1.16",
     "stoxum-hashes": "^0.3.1",
     "stoxum-keypairs": "^0.10.3",
     "stoxum-x-address-codec": "^0.7.3",
