@@ -36,7 +36,7 @@ export class STMUtil {
     }
 
     static stmToDrops(stm: string): string {
-        let stm_drops = (new Big(stm)).times(100000000.0);
+        let stm_drops = (new Big(stm)).times(1000000.0);
         return stm_drops.toString();
     }
 
